@@ -1,0 +1,20 @@
+diff --git a/app.py b/app.py
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/app.py
+@@ -0,0 +1,16 @@
++import sqlite3
++
++def find_user():
++    username = input("Enter username: ")
++    connection = sqlite3.connect("app.db")
++    cursor = connection.cursor()
++
++    query = f"SELECT * FROM users WHERE username = '{username}'"
++    cursor.execute(query)
++
++    return cursor.fetchall()
++
++def calculate_discount(price, discount):
++    return price - discount / 100
