@@ -16,3 +16,6 @@ venv/
 # IDE
 .vscode/
 .idea/
+
+review_*.md
+*.log
