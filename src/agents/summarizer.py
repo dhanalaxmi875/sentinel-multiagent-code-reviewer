@@ -6,6 +6,7 @@ from src.llm import get_llm
 from src.logger import get_logger
 from src.state import ReviewState
 from src.verification_rules import enforce_verdict
+
 _llm = get_llm()
 _log = get_logger("summarizer")
 
@@ -19,7 +20,7 @@ Use exactly this structure:
 ## Code Review Summary
 
 ### Critical Issues (must fix before merge)
-<List accepted CRITICAL or HIGH confidence findings only.>
+<List accepted CRITICAL or HIGH severity findings only.>
 
 ### Suggestions (should fix, improves quality)
 <List accepted MEDIUM or LOW severity findings and findings needing human review.>
@@ -32,11 +33,12 @@ Use exactly this structure:
 <One concise sentence explaining the decision.>
 
 Rules:
-- Never promote a finding above the severity given by the Verification Agent.
-- Preserve CWE IDs if available.
-- Keep each item short: issue, evidence, and fix.
+- Never introduce a finding that is not present in the Verification Agent report.
+- Never promote severity above what the Verification Agent assigned.
+- Preserve CWE IDs when available.
+- Keep each item concise: issue, evidence, and fix.
 - Do not repeat duplicate findings.
-- Do not mention raw specialist reports.
+- Do not say that the submitted code is fixed unless the code diff itself contains the fix.
 """
 
 
@@ -57,6 +59,6 @@ def summarizer_node(state: ReviewState) -> dict:
         )),
     ])
 
-final_review = enforce_verdict(response.content)
+    final_review = enforce_verdict(response.content)
 
-return {"final_review": final_review}
+    return {"final_review": final_review}
