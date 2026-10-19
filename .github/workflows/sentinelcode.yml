@@ -1,0 +1,81 @@
+name: SentinelCode AI Review
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  sentinelcode-review:
+    name: SentinelCode Review
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install semgrep
+
+      - name: Verify Semgrep installation
+        run: |
+          if ! command -v semgrep &> /dev/null; then
+            echo "Error: Semgrep is not installed or not available on PATH." >&2
+            exit 1
+          fi
+          echo "Semgrep version: $(semgrep --version)"
+
+      - name: Extract pull request diff
+        run: |
+          python scripts/extract_pr_diff.py \
+            --base-sha "${{ github.event.pull_request.base.sha }}" \
+            --head-sha "${{ github.event.pull_request.head.sha }}" \
+            --output pr.diff
+
+      - name: Run SentinelCode
+        run: |
+          if [ ! -s pr.diff ] || [ -z "$(tr -d '[:space:]' < pr.diff)" ]; then
+            echo "Empty diff detected. Generating approval report for empty diff."
+            python -c "from pathlib import Path; Path('review.md').write_text('## Code Review Summary\n\n### Critical Issues (must fix before merge)\nNone\n\n### Suggestions (should fix, improves quality)\nNone\n\n### Rejected Findings\nNone\n\n### Verdict\n**APPROVE**\n\nNo code changes were found in this pull request.\n', encoding='utf-8')"
+          else
+            python -m src.cli --file pr.diff --output review.md
+          fi
+
+      - name: Upload review report artifact
+        uses: actions/upload-artifact@v4
+        if: always() && hashFiles('review.md') != ''
+        with:
+          name: sentinelcode-review-report
+          path: review.md
+
+      - name: Post review comment to PR
+        if: hashFiles('review.md') != ''
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python scripts/post_pr_review.py \
+            --repo "${{ github.repository }}" \
+            --pr-number "${{ github.event.pull_request.number }}" \
+            --report-file review.md \
+            --token "${{ github.token }}"
+
+      - name: Check review verdict
+        run: |
+          python scripts/check_review_verdict.py --report-file review.md
