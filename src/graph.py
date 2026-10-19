@@ -11,6 +11,7 @@ from src.agents.code_quality import code_quality_node
 from src.agents.test_coverage import test_coverage_node
 from src.agents.verifier import verifier_node
 from src.agents.summarizer import summarizer_node
+from src.agents.semgrep_scanner import semgrep_scanner_node
 
 _SPECIALIST_AGENTS = {
     "bug_detector",
@@ -31,7 +32,7 @@ def build_graph():
     Topology:
         orchestrator
             ↓
-        specialist agents (parallel)
+        specialist agents + semgrep_scanner (parallel)
             ↓
         verifier
             ↓
@@ -48,8 +49,10 @@ def build_graph():
     graph.add_node("test_coverage", test_coverage_node)
     graph.add_node("verifier", verifier_node)
     graph.add_node("summarizer", summarizer_node)
+    graph.add_node("semgrep_scanner", semgrep_scanner_node)
 
     graph.add_edge(START, "orchestrator")
+    graph.add_edge("orchestrator", "semgrep_scanner")
 
     graph.add_conditional_edges(
         "orchestrator",
@@ -57,9 +60,10 @@ def build_graph():
         {agent: agent for agent in _SPECIALIST_AGENTS},
     )
 
-    # All specialist reviews must complete before verification.
+    # All specialist reviews and Semgrep scan must complete before verification.
     for agent in _SPECIALIST_AGENTS:
         graph.add_edge(agent, "verifier")
+    graph.add_edge("semgrep_scanner", "verifier")
 
     graph.add_edge("verifier", "summarizer")
     graph.add_edge("summarizer", END)

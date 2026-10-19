@@ -76,8 +76,11 @@ def main() -> None:
         print(f"Error reading report file '{args.report_file}': {exc}", file=sys.stderr)
         sys.exit(1)
 
-    comment_header = "## 🛡️ SentinelCode AI Review\n\n"
-    comment_body = f"{comment_header}{report_content}\n"
+    header = "## 🛡️ SentinelCode AI Review"
+    if report_content.startswith(header):
+        comment_body = f"{report_content}\n"
+    else:
+        comment_body = f"{header}\n\n{report_content}\n"
 
     api_url = f"https://api.github.com/repos/{repo}/issues/{pr_number}/comments"
     headers = {
