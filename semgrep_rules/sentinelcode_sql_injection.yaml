@@ -1,0 +1,17 @@
+rules:
+  - id: sentinelcode.python.sql-injection-fstring
+    message: >
+      Possible SQL injection: an f-string SQL query is passed to cursor.execute().
+      Use parameterized queries instead.
+    severity: ERROR
+    languages:
+      - python
+    metadata:
+      cwe:
+        - "CWE-89: Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')"
+      category: security
+    patterns:
+      - pattern: cursor.execute($QUERY)
+      - pattern-inside: |
+          $QUERY = f"..."
+          ...

@@ -46,6 +46,8 @@ def run_review(code_diff: str, file_paths: list[str] | None = None) -> str:
         "security_report": [],
         "quality_report": [],
         "test_report": [],
+        "semgrep_report": "",
+        "verified_report": "",
         "final_review": "",
     }
 

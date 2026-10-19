@@ -1,0 +1,31 @@
+diff --git a/app.py b/app.py
+index 1111111..2222222 100644
+--- a/app.py
++++ b/app.py
+@@ -1,6 +1,14 @@
+ import sqlite3
++import hashlib
++
++
++def calculate_discount(price: float, discount_percent: float) -> float:
++    """Calculate the final price after applying a percentage discount."""
++    if price < 0:
++        raise ValueError("Price cannot be negative.")
++    if not 0 <= discount_percent <= 100:
++        raise ValueError("Discount percent must be between 0 and 100.")
++    return price * (1 - discount_percent / 100)
++
++
++def get_user(user_id: int):
++    """Fetch a user by numeric ID using a parameterized query."""
++    connection = sqlite3.connect("app.db")
++    cursor = connection.cursor()
++    cursor.execute("SELECT id, username, email FROM users WHERE id = ?", (user_id,))
++    user = cursor.fetchone()
++    connection.close()
++    return user
++
++
++def hash_password(password: str) -> str:
++    """Hash a password using SHA-256."""
++    return hashlib.sha256(password.encode("utf-8")).hexdigest()

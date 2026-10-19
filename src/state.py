@@ -16,8 +16,6 @@ class ReviewState(TypedDict):
     quality_report: Annotated[list[str], operator.add]
     test_report: Annotated[list[str], operator.add]
 
-    # Verification Agent output
+    semgrep_report: str
     verified_report: str
-
-    # Final output
     final_review: str

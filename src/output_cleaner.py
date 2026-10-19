@@ -64,8 +64,17 @@ def remove_duplicate_rejected_findings(report: str) -> str:
     return report
 
 
+def clean_confidence_placeholders(report: str) -> str:
+    """Replace literal CONFIDENCE placeholder text with MEDIUM or HIGH."""
+    # Replace literal CONFIDENCE placeholder
+    report = re.sub(r"\|\s*CONFIDENCE\b", "| MEDIUM", report, flags=re.IGNORECASE)
+    report = re.sub(r"\bCONFIDENCE\b", "MEDIUM", report)
+    return report
+
+
 def clean_verified_report(report: str) -> str:
     """Apply all deterministic cleanup rules to verifier output."""
+    report = clean_confidence_placeholders(report)
     report = remove_duplicate_rejected_findings(report)
     report = remove_unsupported_suggestions(report)
     report = limit_rejected_findings(report, max_items=3)

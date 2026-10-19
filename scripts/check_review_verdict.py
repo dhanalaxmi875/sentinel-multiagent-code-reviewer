@@ -34,12 +34,16 @@ def main() -> None:
         print(f"Error reading report file '{args.report_file}': {exc}", file=sys.stderr)
         sys.exit(1)
 
-    # Search for the verdict
-    if "REQUEST CHANGES" in report_text:
+    # Search for the verdict specifically under ### Verdict if present
+    import re
+    verdict_match = re.search(r"### Verdict\s*\n+([^\n]+)", report_text, flags=re.IGNORECASE)
+    verdict_target = verdict_match.group(1).upper() if verdict_match else report_text.upper()
+
+    if "REQUEST CHANGES" in verdict_target:
         print("Verdict: REQUEST CHANGES")
         print("SentinelCode detected issues requiring changes before merge. Failing check.")
         sys.exit(1)
-    elif "APPROVE" in report_text:
+    elif "APPROVE" in verdict_target:
         print("Verdict: APPROVE")
         print("SentinelCode review approved. Passing check.")
         sys.exit(0)
