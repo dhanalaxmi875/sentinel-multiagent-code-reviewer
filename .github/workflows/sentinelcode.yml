@@ -10,6 +10,7 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  checks: write
 
 jobs:
   sentinelcode-review:
@@ -71,6 +72,16 @@ jobs:
             --head-sha "${{ github.event.pull_request.head.sha }}" \
             --output pr.diff
 
+      - name: Start SentinelCode check run
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python scripts/create_check_run.py \
+            --repo "${{ github.repository }}" \
+            --head-sha "${{ github.event.pull_request.head.sha }}" \
+            --status in_progress \
+            --token "${{ github.token }}"
+
       - name: Run SentinelCode
         run: |
           if [ ! -s pr.diff ] || [ -z "$(tr -d '[:space:]' < pr.diff)" ]; then
@@ -85,7 +96,9 @@ jobs:
         if: always() && hashFiles('review.md') != ''
         with:
           name: sentinelcode-review-report
-          path: review.md
+          path: |
+            review.md
+            review_metadata.json
 
       - name: Post review comment to PR
         if: hashFiles('review.md') != ''
@@ -95,6 +108,31 @@ jobs:
           python scripts/post_pr_review.py \
             --repo "${{ github.repository }}" \
             --pr-number "${{ github.event.pull_request.number }}" \
+            --report-file review.md \
+            --token "${{ github.token }}"
+
+      - name: Post inline review comments
+        if: hashFiles('review.md') != ''
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python scripts/post_inline_review_comments.py \
+            --repo "${{ github.repository }}" \
+            --pr-number "${{ github.event.pull_request.number }}" \
+            --report-file review.md \
+            --diff-file pr.diff \
+            --commit-sha "${{ github.event.pull_request.head.sha }}" \
+            --token "${{ github.token }}"
+
+      - name: Complete SentinelCode check run
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python scripts/create_check_run.py \
+            --repo "${{ github.repository }}" \
+            --head-sha "${{ github.event.pull_request.head.sha }}" \
+            --status completed \
             --report-file review.md \
             --token "${{ github.token }}"
 

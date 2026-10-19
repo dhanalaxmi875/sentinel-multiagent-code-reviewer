@@ -25,14 +25,14 @@ Use exactly this structure:
 - **CRITICAL | HIGH** Finding title
   - Evidence: exact code pattern from the diff
   - Fix: concise valid remediation
-  - Source: agent name(s) and/or Semgrep
+  - Source: SentinelCode
 (If there are no critical/high issues, write: None)
 
 ### Suggestions (should fix, improves quality)
 - **MEDIUM | HIGH** Finding title
   - Evidence or Reason: explanation
   - Fix: suggested fix
-  - Source: agent name(s)
+  - Source: SentinelCode
 (If there are no suggestions, write: None)
 
 ### Rejected Findings
@@ -78,4 +78,10 @@ def summarizer_node(state: ReviewState) -> dict:
 
     final_review = apply_verification_rules(response.content, context=code_diff)
 
-    return {"final_review": final_review}
+    from src.structured_findings import parse_accepted_findings
+    structured_findings = parse_accepted_findings(final_review, code_diff)
+
+    return {
+        "final_review": final_review,
+        "structured_findings": structured_findings,
+    }

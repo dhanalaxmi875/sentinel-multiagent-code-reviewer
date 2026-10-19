@@ -111,10 +111,12 @@ def _normalize_headings(report: str) -> str:
 
 
 def _clean_confidence_placeholders(report: str) -> str:
-    """Replace literal CONFIDENCE or SEVERITY placeholder text with valid values."""
+    """Replace literal CONFIDENCE, SEVERITY, or prompt template text with clean values."""
     report = re.sub(r"\|\s*CONFIDENCE\b", "| MEDIUM", report, flags=re.IGNORECASE)
     report = re.sub(r"\bCONFIDENCE\b", "MEDIUM", report)
     report = re.sub(r"\bSEVERITY\s*\|", "MEDIUM |", report, flags=re.IGNORECASE)
+    report = re.sub(r"Source:\s*agent name\(s\):?\s*", "Source: ", report, flags=re.IGNORECASE)
+    report = re.sub(r"Source:\s*agent name\(s\)\s*(?:and/or\s*)?", "Source: ", report, flags=re.IGNORECASE)
     return report
 
 
