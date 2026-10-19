@@ -15,6 +15,9 @@ jobs:
   sentinelcode-review:
     name: SentinelCode Review
     runs-on: ubuntu-latest
+    env:
+      OLLAMA_MODEL: ${{ vars.OLLAMA_MODEL || 'qwen2.5-coder:1.5b' }}
+      OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL || vars.OLLAMA_BASE_URL || 'http://localhost:11434' }}
 
     steps:
       - name: Checkout repository
@@ -33,6 +36,25 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install semgrep
+          pip install -e .
+
+      - name: Setup and start Ollama
+        if: env.OLLAMA_BASE_URL == 'http://localhost:11434'
+        run: |
+          echo "Installing Ollama in GitHub Actions runner..."
+          curl -fsSL https://ollama.com/install.sh | sh
+          echo "Starting Ollama server in background..."
+          ollama serve > /dev/null 2>&1 &
+          echo "Waiting for Ollama service..."
+          for i in {1..30}; do
+            if curl -s http://localhost:11434/api/tags > /dev/null 2>&1; then
+              echo "Ollama is ready!"
+              break
+            fi
+            sleep 1
+          done
+          echo "Pulling model ${{ env.OLLAMA_MODEL }}..."
+          ollama pull "${{ env.OLLAMA_MODEL }}"
 
       - name: Verify Semgrep installation
         run: |
