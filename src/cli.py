@@ -103,8 +103,17 @@ def main() -> None:
     review = run_review(diff, files)
 
     if args.output:
-        pathlib.Path(args.output).write_text(review)
+        output_path = pathlib.Path(args.output)
+        output_path.write_text(review, encoding="utf-8")
         print(f"Review written to {args.output}")
+
+        try:
+            from src.structured_findings import parse_accepted_findings, save_structured_findings
+            meta_path = output_path.with_name(f"{output_path.stem}_metadata.json")
+            findings = parse_accepted_findings(review, diff)
+            save_structured_findings(findings, meta_path)
+        except Exception:
+            pass
     else:
         print(review)
 

@@ -19,3 +19,4 @@ class ReviewState(TypedDict):
     semgrep_report: str
     verified_report: str
     final_review: str
+    structured_findings: list[dict]

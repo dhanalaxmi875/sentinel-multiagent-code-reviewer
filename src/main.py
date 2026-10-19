@@ -49,6 +49,7 @@ def run_review(code_diff: str, file_paths: list[str] | None = None) -> str:
         "semgrep_report": "",
         "verified_report": "",
         "final_review": "",
+        "structured_findings": [],
     }
 
     config = {"configurable": {"thread_id": str(uuid.uuid4())}}

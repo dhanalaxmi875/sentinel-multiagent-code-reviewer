@@ -78,4 +78,10 @@ def summarizer_node(state: ReviewState) -> dict:
 
     final_review = apply_verification_rules(response.content, context=code_diff)
 
-    return {"final_review": final_review}
+    from src.structured_findings import parse_accepted_findings
+    structured_findings = parse_accepted_findings(final_review, code_diff)
+
+    return {
+        "final_review": final_review,
+        "structured_findings": structured_findings,
+    }
