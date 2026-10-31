@@ -1,0 +1,16 @@
+[
+  {
+    "title": "SQL injection due to string concatenation in the SQL query",
+    "severity": "CRITICAL",
+    "confidence": "HIGH",
+    "file": "app.py",
+    "line": 8,
+    "evidence": "`query = f\"SELECT * FROM users WHERE username = '{username}'\"`",
+    "fix": "Use parameterized queries to prevent SQL injection.\n    ```python\n                            query = \"SELECT * FROM users WHERE username = ?\"\n                            cursor.execute(query, (username,))\n    ```",
+    "source": [
+      "Security Agent",
+      "Semgrep"
+    ],
+    "cwe": "CWE-89"
+  }
+]
