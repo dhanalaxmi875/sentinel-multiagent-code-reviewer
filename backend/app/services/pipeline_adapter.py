@@ -302,6 +302,7 @@ def _normalize_findings(
     structured: list[dict[str, Any]],
     report: str,
     verifier_report: str,
+    verifier_report_before_rules: str,
     verifier_input: dict[str, Any],
     diff_text: str,
 ) -> list[dict[str, Any]]:
@@ -336,6 +337,38 @@ def _normalize_findings(
         )
     candidates = _candidate_findings(verifier_input, diff_text)
     rejected = _rejected_findings(verifier_report or report, candidates, kept)
+    # The deterministic rules may remove an item that the verifier accepted.
+    # Preserve that transition as a rejected finding, using any explicit reason
+    # already written to the post-rule report and otherwise the documented fallback.
+    before_rules = _extract_section(
+        verifier_report_before_rules,
+        ("### Accepted", "### Critical Issues", "### Suggestions"),
+    )
+    after_rules = _extract_section(
+        verifier_report,
+        ("### Accepted", "### Critical Issues", "### Suggestions"),
+    )
+    for block in _split_finding_blocks(before_rules):
+        title = _title_from_block(block)
+        if not title or _normalize(title) == "none":
+            continue
+        if any(_similarity(title, item["title"]) > 0.7 for item in kept + rejected):
+            continue
+        candidate = max(candidates, key=lambda item: _similarity(title, item["title"]), default={})
+        if any(
+            _similarity(title, accepted) > 0.7 for accepted in _split_finding_blocks(after_rules)
+        ):
+            continue
+        reason = _field(block, "Reason")
+        rejected.append(
+            {
+                **candidate,
+                "id": str(uuid.uuid4()),
+                "title": title,
+                "status": "rejected",
+                "rejection_reason": reason or "removed by verifier",
+            }
+        )
     # Include final-report rejections if the verifier's trace did not contain them.
     final_rejected = _rejected_findings(report, candidates, kept + rejected)
     for item in final_rejected:
@@ -425,6 +458,7 @@ class PipelineAdapter:
             trace.get("structured_findings", []),
             report,
             trace.get("verifier_report", ""),
+            trace.get("verifier_report_before_rules", ""),
             trace.get("input", {}),
             diff_text,
         )
