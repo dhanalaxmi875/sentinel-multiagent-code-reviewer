@@ -182,6 +182,10 @@ def verifier_node(state: ReviewState) -> dict:
     ])
 
     verified_report = clean_verified_report(response.content)
+    report_before_rules = verified_report
     verified_report = apply_verification_rules(verified_report, context=state.get("code_diff", ""))
 
-    return {"verified_report": verified_report}
+    result = {"verified_report": verified_report}
+    if state.get("capture_verifier_trace"):
+        result["verifier_report_before_rules"] = report_before_rules
+    return result

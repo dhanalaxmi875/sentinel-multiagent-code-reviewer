@@ -7,6 +7,8 @@ Public API:
 import pathlib
 import sys
 import uuid
+from collections.abc import Callable
+from typing import Any
 
 # Ensure the project root is on sys.path so `src.*` imports resolve whether
 # this file is run as `python src/main.py` or `python -m src.main`.
@@ -25,7 +27,13 @@ from src.logger import get_logger
 _log = get_logger("main")
 
 
-def run_review(code_diff: str, file_paths: list[str] | None = None) -> str:
+def run_review(
+    code_diff: str,
+    file_paths: list[str] | None = None,
+    *,
+    node_callback: Callable[[dict[str, Any]], None] | None = None,
+    capture_verifier_trace: bool = False,
+) -> str:
     """Run the multi-agent code review pipeline on a code diff.
 
     Args:
@@ -35,10 +43,10 @@ def run_review(code_diff: str, file_paths: list[str] | None = None) -> str:
     Returns:
         The final review as a formatted string.
     """
-    graph = build_graph()
+    graph = build_graph(node_callback=node_callback)
     code_diff = prepare_diff(code_diff)
 
-    initial_state = {
+    initial_state: dict[str, Any] = {
         "code_diff": code_diff,
         "file_paths": file_paths or [],
         "active_agents": [],
@@ -51,6 +59,8 @@ def run_review(code_diff: str, file_paths: list[str] | None = None) -> str:
         "final_review": "",
         "structured_findings": [],
     }
+    if capture_verifier_trace:
+        initial_state["capture_verifier_trace"] = True
 
     config = {"configurable": {"thread_id": str(uuid.uuid4())}}
 

@@ -1,5 +1,5 @@
 import operator
-from typing import Annotated, TypedDict
+from typing import Annotated, NotRequired, TypedDict
 
 
 class ReviewState(TypedDict):
@@ -20,3 +20,7 @@ class ReviewState(TypedDict):
     verified_report: str
     final_review: str
     structured_findings: list[dict]
+
+    # Optional observability fields. They are absent during the normal CLI path.
+    capture_verifier_trace: NotRequired[bool]
+    verifier_report_before_rules: NotRequired[str]
