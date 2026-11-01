@@ -73,6 +73,23 @@ VITE_USE_MOCK=true
 VITE_API_BASE_URL=http://localhost:8000
 ```
 
+## Visual system and motion
+
+The interface uses a dark violet-indigo background, translucent glass surfaces, thin light borders, and Inter with JetBrains Mono for code. CSS tokens live in `src/index.css` and Tailwind color, radius, and shadow tokens live in `tailwind.config.js`. Reusable `GlassCard`, `GlassButton`, `GlassInput`, `Badge`, and `Tabs` components keep the same surface treatment across the landing page and workspace. Code, diff, and evidence panels use a more opaque dark surface for readability. Severity and confidence colors retain their semantic meaning.
+
+The landing page's shield scene is loaded on demand. It uses Three.js with React Three Fiber and Drei; the workspace routes do not load the 3D chunk. The scene caps device pixel ratio at 2, pauses when it is offscreen or the tab is hidden, and uses a static SVG on small screens, when reduced motion is enabled, or when WebGL is unavailable. UI transitions use Framer Motion and respect `prefers-reduced-motion`. Browsers without `backdrop-filter` get solid translucent panels.
+
+Added runtime dependencies for this redesign:
+
+- `framer-motion`: route, card, tab, toast, and dashboard number transitions.
+- `three`: the landing page's 3D shield and agent nodes.
+- `@react-three/fiber`: React renderer for the Three.js scene.
+- `@react-three/drei`: lightweight line helpers for node connections.
+
+No Lighthouse run or low-end-device GPU measurement has been performed. The scene is dynamically imported, kept out of the app entry chunk, simplified to a static SVG on mobile, and pauses outside the visible viewport; those choices have not yet been validated with a measured Lighthouse score.
+
+`VITE_USE_MOCK=true` continues to enable the existing API mock lifecycle and labels demo data in the UI. Set `VITE_USE_MOCK=false` (or omit it) and configure `VITE_API_BASE_URL` for the real API.
+
 ## API Contract
 
 The typed client in `src/api/` communicates with the backend via REST API. All requests include a persistent per-browser UUID `X-Client-Token` header. Set `VITE_API_BASE_URL` to the API origin; it defaults to `http://localhost:8000`.
@@ -80,9 +97,11 @@ The typed client in `src/api/` communicates with the backend via REST API. All r
 ### Endpoints
 
 #### POST /api/reviews
+
 Create a new code review.
 
 **Request:**
+
 ```typescript
 {
   diff_text: string;        // Unified diff (max 40,000 chars)
@@ -92,17 +111,20 @@ Create a new code review.
 ```
 
 **Response:**
+
 ```typescript
 {
-  id: string;               // Review ID
-  status: 'queued' | 'running' | 'done' | 'failed';
+  id: string; // Review ID
+  status: "queued" | "running" | "done" | "failed";
 }
 ```
 
 #### GET /api/reviews
+
 List all reviews (summary).
 
 **Response:**
+
 ```typescript
 {
   id: string;
@@ -120,9 +142,11 @@ List all reviews (summary).
 ```
 
 #### GET /api/reviews/:id
+
 Get detailed review by ID.
 
 **Response:**
+
 ```typescript
 {
   id: string;
@@ -158,14 +182,17 @@ Get detailed review by ID.
 ```
 
 #### DELETE /api/reviews/:id
+
 Delete a review by ID.
 
 **Response:** 204 No Content
 
 #### GET /api/samples
+
 Get available sample diffs for testing.
 
 **Response:**
+
 ```typescript
 {
   id: string;
@@ -177,9 +204,11 @@ Get available sample diffs for testing.
 ```
 
 #### GET /api/stats
+
 Get user statistics.
 
 **Response:**
+
 ```typescript
 {
   total_reviews: number;
@@ -188,11 +217,11 @@ Get user statistics.
     high: number;
     medium: number;
     low: number;
-  };
+  }
   verdict_split: {
     approve: number;
     request_changes: number;
-  };
+  }
   avg_review_time_s: number;
 }
 ```
@@ -213,11 +242,11 @@ When `VITE_USE_MOCK=true`, the frontend uses a mock API client that:
 All API types are defined in `src/api/types.ts`:
 
 ```typescript
-type ReviewStatus = 'queued' | 'running' | 'done' | 'failed';
-type Severity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
-type Confidence = 'HIGH' | 'MEDIUM' | 'LOW';
-type Verdict = 'APPROVE' | 'REQUEST_CHANGES';
-type FindingStatus = 'kept' | 'rejected';
+type ReviewStatus = "queued" | "running" | "done" | "failed";
+type Severity = "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
+type Confidence = "HIGH" | "MEDIUM" | "LOW";
+type Verdict = "APPROVE" | "REQUEST_CHANGES";
+type FindingStatus = "kept" | "rejected";
 ```
 
 ## Components
@@ -277,6 +306,7 @@ Tests are written with Vitest and Testing Library:
 - `src/utils/filterLogic.test.ts` - Filter logic
 
 Run tests:
+
 ```bash
 npm test
 ```

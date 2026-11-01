@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
-import { CheckCircle2, XCircle, X } from 'lucide-react';
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { CheckCircle2, XCircle, X } from "lucide-react";
 
-type ToastType = 'success' | 'error' | 'info';
+type ToastType = "success" | "error" | "info";
 
 interface ToastProps {
   message: string;
@@ -10,21 +11,26 @@ interface ToastProps {
 }
 
 export function Toast({ message, type, onClose }: ToastProps) {
+  const reducedMotion = useReducedMotion();
   const [isVisible, setIsVisible] = useState(true);
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(false);
-      setTimeout(onClose, 300);
+      setTimeout(() => onCloseRef.current(), 300);
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [onClose]);
+  }, []);
 
   const bgColors = {
-    success: 'bg-safe/10 border-safe/30 text-safe',
-    error: 'bg-critical/10 border-critical/30 text-critical',
-    info: 'bg-brand/10 border-brand/30 text-brand',
+    success: "border-safe/25 text-safe",
+    error: "border-critical/25 text-critical",
+    info: "border-violet-300/25 text-violet-100",
   };
 
   const icons = {
@@ -34,26 +40,33 @@ export function Toast({ message, type, onClose }: ToastProps) {
   };
 
   return (
-    <div
-      role="status"
-      aria-live={type === 'error' ? 'assertive' : 'polite'}
-      className={`fixed bottom-4 right-4 max-w-sm w-full p-4 rounded-lg border ${bgColors[type]} transition-all duration-300 ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
-      }`}
-    >
-      <div className="flex items-start gap-3">
-        {icons[type]}
-        <p className="flex-1 text-sm">{message}</p>
-        <button
-          onClick={() => {
-            setIsVisible(false);
-            setTimeout(onClose, 300);
-          }}
-          className="hover:opacity-70 transition-opacity"
+    <AnimatePresence>
+      {isVisible && (
+        <motion.div
+          role={type === "error" ? "alert" : "status"}
+          aria-live={type === "error" ? "assertive" : "polite"}
+          initial={reducedMotion ? false : { opacity: 0, y: 12, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 8 }}
+          transition={{ duration: reducedMotion ? 0 : 0.22 }}
+          className={`toast-glass fixed bottom-4 right-4 z-50 w-[min(24rem,calc(100vw-2rem))] rounded-2xl p-4 ${bgColors[type]}`}
         >
-          <X size={16} />
-        </button>
-      </div>
-    </div>
+          <div className="flex items-start gap-3">
+            {icons[type]}
+            <p className="flex-1 text-sm text-text">{message}</p>
+            <button
+              aria-label="Dismiss notification"
+              onClick={() => {
+                setIsVisible(false);
+                setTimeout(() => onCloseRef.current(), 220);
+              }}
+              className="rounded-lg p-1 text-secondary transition hover:bg-white/10 hover:text-white"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
