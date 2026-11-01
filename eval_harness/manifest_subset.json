@@ -1,0 +1,102 @@
+[
+  {
+    "id": "securityeval_CWE-020_author_1",
+    "dataset": "securityeval",
+    "language": "python",
+    "file": "CWE-020_author_1.py",
+    "diff_path": "diffs\\securityeval_CWE-020_author_1.diff",
+    "label": "vulnerable",
+    "cwe": "CWE-20",
+    "line_range": null
+  },
+  {
+    "id": "securityeval_CWE-020_author_2",
+    "dataset": "securityeval",
+    "language": "python",
+    "file": "CWE-020_author_2.py",
+    "diff_path": "diffs\\securityeval_CWE-020_author_2.diff",
+    "label": "vulnerable",
+    "cwe": "CWE-20",
+    "line_range": null
+  },
+  {
+    "id": "securityeval_CWE-020_codeql_1",
+    "dataset": "securityeval",
+    "language": "python",
+    "file": "CWE-020_codeql_1.py",
+    "diff_path": "diffs\\securityeval_CWE-020_codeql_1.diff",
+    "label": "vulnerable",
+    "cwe": "CWE-20",
+    "line_range": null
+  },
+  {
+    "id": "securityeval_CWE-020_codeql_2",
+    "dataset": "securityeval",
+    "language": "python",
+    "file": "CWE-020_codeql_2.py",
+    "diff_path": "diffs\\securityeval_CWE-020_codeql_2.diff",
+    "label": "vulnerable",
+    "cwe": "CWE-20",
+    "line_range": null
+  },
+  {
+    "id": "securityeval_CWE-020_codeql_3",
+    "dataset": "securityeval",
+    "language": "python",
+    "file": "CWE-020_codeql_3.py",
+    "diff_path": "diffs\\securityeval_CWE-020_codeql_3.diff",
+    "label": "vulnerable",
+    "cwe": "CWE-20",
+    "line_range": null
+  },
+  {
+    "id": "securityeval_CWE-022_author_1",
+    "dataset": "securityeval",
+    "language": "python",
+    "file": "CWE-022_author_1.py",
+    "diff_path": "diffs\\securityeval_CWE-022_author_1.diff",
+    "label": "vulnerable",
+    "cwe": "CWE-22",
+    "line_range": null
+  },
+  {
+    "id": "securityeval_CWE-022_author_2",
+    "dataset": "securityeval",
+    "language": "python",
+    "file": "CWE-022_author_2.py",
+    "diff_path": "diffs\\securityeval_CWE-022_author_2.diff",
+    "label": "vulnerable",
+    "cwe": "CWE-22",
+    "line_range": null
+  },
+  {
+    "id": "securityeval_CWE-022_codeql_1",
+    "dataset": "securityeval",
+    "language": "python",
+    "file": "CWE-022_codeql_1.py",
+    "diff_path": "diffs\\securityeval_CWE-022_codeql_1.diff",
+    "label": "vulnerable",
+    "cwe": "CWE-22",
+    "line_range": null
+  },
+  {
+    "id": "securityeval_CWE-022_codeql_2",
+    "dataset": "securityeval",
+    "language": "python",
+    "file": "CWE-022_codeql_2.py",
+    "diff_path": "diffs\\securityeval_CWE-022_codeql_2.diff",
+    "label": "vulnerable",
+    "cwe": "CWE-22",
+    "line_range": null
+  },
+  {
+    "id": "securityeval_CWE-078_author_1",
+    "dataset": "securityeval",
+    "language": "python",
+    "file": "CWE-078_author_1.py",
+    "diff_path": "diffs\\securityeval_CWE-078_author_1.diff",
+    "label": "vulnerable",
+    "cwe": "CWE-78",
+    "line_range": null
+  }
+]
