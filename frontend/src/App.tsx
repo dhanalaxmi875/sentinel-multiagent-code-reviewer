@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { CursorGlow } from "./components/CursorGlow";
 
 const AnimatedRoutes = lazy(() =>
   import("./components/AnimatedRoutes").then((module) => ({
@@ -23,6 +24,7 @@ function App() {
   return (
     <BrowserRouter>
       <ErrorBoundary>
+        <CursorGlow />
         <Suspense fallback={<LoadingScreen />}>
           <AnimatedRoutes />
         </Suspense>

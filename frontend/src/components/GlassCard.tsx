@@ -14,6 +14,7 @@ export function GlassCard({
   return (
     <div
       className={`glass-panel rounded-2xl ${hoverable ? "glass-card" : ""} ${className}`}
+      data-cursor-glow={className.includes("code-glass") ? undefined : ""}
       {...props}
     >
       {children}

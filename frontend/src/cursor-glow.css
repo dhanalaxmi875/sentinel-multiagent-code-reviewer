@@ -1,0 +1,116 @@
+.ambient-cursor-glow {
+  position: fixed;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  width: 620px;
+  height: 620px;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(139, 92, 246, 0.16) 0%,
+    rgba(99, 102, 241, 0.1) 35%,
+    transparent 72%
+  );
+  mix-blend-mode: screen;
+  transform: translate3d(var(--cursor-x, -1000px), var(--cursor-y, -1000px), 0)
+    translate(-50%, -50%);
+  transition: opacity 0.3s ease;
+  will-change: transform;
+}
+.ambient-cursor-glow[data-active="true"] {
+  opacity: 0.8;
+}
+#root > :not(.ambient-cursor-glow) {
+  position: relative;
+  z-index: 1;
+}
+.glass-panel[data-cursor-glow],
+.glass-control[data-cursor-glow],
+.interactive-row {
+  position: relative;
+  isolation: isolate;
+  transition:
+    transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.25s,
+    box-shadow 0.25s;
+}
+.glass-panel[data-cursor-glow]::before,
+.glass-control[data-cursor-glow]::before,
+.interactive-row::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  border-radius: inherit;
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    220px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(167, 139, 250, 0.12),
+    transparent 72%
+  );
+  transition: opacity 0.25s ease;
+}
+.glass-panel[data-cursor-glow]::after,
+.glass-control[data-cursor-glow]::after,
+.interactive-row::after {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  border: 1px solid transparent;
+  border-radius: inherit;
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(
+      160px circle at var(--mx, 50%) var(--my, 50%),
+      rgba(196, 181, 253, 0.62),
+      transparent 72%
+    )
+    border-box;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) padding-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  transition: opacity 0.25s ease;
+}
+.glass-panel[data-cursor-glow]:hover,
+.glass-control[data-cursor-glow]:hover,
+.interactive-row:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 26px 75px rgba(4, 2, 18, 0.42),
+    0 0 30px rgba(139, 92, 246, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+.glass-panel[data-cursor-glow]:hover::before,
+.glass-panel[data-cursor-glow]:hover::after,
+.glass-control[data-cursor-glow]:hover::before,
+.glass-control[data-cursor-glow]:hover::after,
+.interactive-row:hover::before,
+.interactive-row:hover::after {
+  opacity: 1;
+}
+.glass-panel[data-cursor-glow] > *,
+.glass-control[data-cursor-glow] > *,
+.interactive-row > * {
+  position: relative;
+  z-index: 1;
+}
+@media (hover: none), (prefers-reduced-motion: reduce) {
+  .ambient-cursor-glow {
+    display: none;
+  }
+  .glass-panel[data-cursor-glow]::before,
+  .glass-panel[data-cursor-glow]::after,
+  .glass-control[data-cursor-glow]::before,
+  .glass-control[data-cursor-glow]::after,
+  .interactive-row::before,
+  .interactive-row::after {
+    display: none;
+  }
+}

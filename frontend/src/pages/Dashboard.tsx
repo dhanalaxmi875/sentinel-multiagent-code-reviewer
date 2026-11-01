@@ -454,7 +454,7 @@ export default function Dashboard() {
                     <Link
                       key={review.id}
                       to={`/app/reviews/${review.id}`}
-                      className="group flex flex-wrap items-center justify-between gap-3 px-5 py-4 transition-colors hover:bg-white/[.035] sm:px-7"
+                      className="interactive-row group flex flex-wrap items-center justify-between gap-3 px-5 py-4 transition-colors hover:bg-white/[.035] sm:px-7"
                     >
                       <div className="flex min-w-0 items-center gap-3">
                         <span

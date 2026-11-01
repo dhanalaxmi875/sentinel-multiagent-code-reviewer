@@ -419,7 +419,7 @@ export default function Landing() {
   const closeMenu = () => setMenuOpen(false);
 
   return (
-    <div className="min-h-screen overflow-clip text-text">
+    <div className="landing-page min-h-screen overflow-clip text-text">
       <header
         className={`landing-nav glass-panel ${scrolled ? "is-scrolled bg-[#110c27]/80 shadow-[0_16px_50px_rgba(0,0,0,.34)]" : "bg-white/[.045]"}`}
       >

@@ -152,7 +152,7 @@ export default function History() {
                               : { opacity: 0, y: -5 }
                           }
                           key={review.id}
-                          className="border-b border-white/[.07] transition-colors hover:bg-white/[.035]"
+                          className="interactive-row border-b border-white/[.07] transition-colors hover:bg-white/[.035]"
                         >
                           <td className="p-4">
                             <Badge
