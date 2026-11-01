@@ -16,5 +16,8 @@ TEMPERATURE = float(os.getenv("TEMPERATURE", "0"))
 # Maximum diff characters per LLM review chunk
 MAX_DIFF_CHARS = int(os.getenv("MAX_DIFF_CHARS", "12000"))
 
+# API diff size limit (used by backend pipeline adapter)
+API_MAX_DIFF_CHARS = int(os.getenv("API_MAX_DIFF_CHARS", "40000"))
+
 # Log file used by src/logger.py
 LOG_FILE = os.getenv("LOG_FILE", "logs/code_review.log")

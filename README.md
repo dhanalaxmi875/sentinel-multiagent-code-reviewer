@@ -1,6 +1,6 @@
 # Multi-Agent Code Review
 
-An AI-powered code review system that uses a team of specialized agents — built with [LangGraph](https://github.com/langchain-ai/langgraph) and Claude — to analyze a code diff and produce a structured, prioritized review.
+An AI-powered code review system that uses a team of specialized agents — built with [LangGraph](https://github.com/langchain-ai/langgraph) and Ollama — to analyze a code diff and produce a structured, prioritized review.
 
 ## How It Works
 
@@ -80,9 +80,10 @@ There are two ways to use this tool without cloning the repo into your project.
 Install once, use anywhere:
 
 ```bash
-pip install git+https://github.com/alanchn31/multi-agent-code-review.git
-export ANTHROPIC_API_KEY=sk-ant-...
+pip install git+https://github.com/dhanalaxmi875/sentinel-multiagent-code-reviewer.git
 ```
+
+Run an Ollama server with the model configured through `OLLAMA_MODEL` (default: `qwen2.5-coder:14b`).
 
 Then run from inside **any** git repository:
 
@@ -105,22 +106,7 @@ code-review --branch main --output review.md
 
 ### Option 2 — GitHub Actions (automated PR reviews)
 
-Add the workflow file to any repo and it will post an AI review as a comment on every PR automatically.
-
-**1. Copy the workflow file into your repo:**
-```bash
-mkdir -p .github/workflows
-curl -o .github/workflows/code_review.yml \
-  https://raw.githubusercontent.com/alanchn31/multi-agent-code-review/main/.github/workflows/code_review.yml
-```
-
-**2. Add your API key as a GitHub secret:**
-
-Go to your repo → Settings → Secrets → Actions → New secret:
-- Name: `ANTHROPIC_API_KEY`
-- Value: your Anthropic API key
-
-**3. Open a PR** — the bot will comment with the full review automatically.
+The `.github/workflows/sentinelcode.yml` workflow in this repository runs on pull requests and posts its report as a PR comment. It uses Ollama; by default, GitHub Actions installs Ollama and downloads `qwen2.5-coder:1.5b`. Set the repository variable `OLLAMA_MODEL` to choose a different model. If you use a hosted Ollama server, set `OLLAMA_BASE_URL` as a repository secret or variable.
 
 ---
 
@@ -130,16 +116,16 @@ Go to your repo → Settings → Secrets → Actions → New secret:
 
 ```bash
 # 1. Clone and enter the directory
-git clone https://github.com/alanchn31/multi-agent-code-review.git
-cd multi-agent-code-review
+git clone https://github.com/dhanalaxmi875/sentinel-multiagent-code-reviewer.git
+cd sentinel-multiagent-code-reviewer
 
 # 2. Install dependencies and register the project on your Python path
 pip install -r requirements.txt
 pip install -e .
 
-# 3. Configure your API key
+# 3. Configure your local Ollama model if needed
 cp .env.example .env
-# Edit .env and set ANTHROPIC_API_KEY=your_key_here
+# Set OLLAMA_MODEL and OLLAMA_BASE_URL to match your Ollama setup
 ```
 
 ## Usage
@@ -167,7 +153,7 @@ code-review --file sample.diff --output review.md
 
 ### Use as a library
 
-After installing (`pip install -e .` or `pip install git+https://github.com/alanchn31/multi-agent-code-review.git`):
+After installing (`pip install -e .` or `pip install git+https://github.com/dhanalaxmi875/sentinel-multiagent-code-reviewer.git`):
 
 ```python
 from code_review import run_review
@@ -293,15 +279,47 @@ All agent activity is written to both the terminal and `logs/review.log` via Pyt
 ### Evaluation
 `evals/run_eval.py` runs the full pipeline against 4 fixed test cases and scores each review with keyword matching — no second LLM call needed. Cases cover SQL injection, hardcoded secrets, off-by-one errors, and a clean-code baseline that should not raise false alarms. This is intentionally simple: the goal is a repeatable regression check, not a complete benchmark.
 
+## Run the SentinelCode web app
+
+The `backend/` folder contains a FastAPI web API and review worker. The built frontend is served by the backend when `frontend/dist/` exists. Start the backend from the `backend` folder so its `app` package resolves correctly.
+
+### Windows PowerShell
+
+From the repository root:
+
+```powershell
+py -3.11 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r backend\requirements.txt
+Set-Location backend
+python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Then open [http://127.0.0.1:8000](http://127.0.0.1:8000). Create an account at `/register` or sign in at `/login`; review, history, and stats APIs require a signed-in account. Accounts and review data are stored in SQLite. The API health check is [http://127.0.0.1:8000/api/health](http://127.0.0.1:8000/api/health), and interactive API docs are at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
+
+The real review pipeline uses Ollama. Install/start Ollama separately and download the configured model (the checked-in `.env` selects `qwen2.5-coder:7b`):
+
+```powershell
+ollama pull qwen2.5-coder:7b
+```
+
+If PowerShell blocks virtual-environment activation, run the Python executable directly instead: `..\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000` while in `backend`. To try the web app without Ollama, set `$env:SENTINEL_FAKE_PIPELINE = "true"` before starting the server; this returns deterministic demo reviews and does not run the AI review pipeline.
+
+The backend creates its SQLite database at `backend/data/reviews.sqlite3` by default. Set `DATABASE_URL` to change the location. `frontend/` currently contains the built static site rather than its original component source. To preview that built site through Vite, open a second terminal in `frontend` and run `npm install` followed by `npm run dev`; the dev server proxies `/api` requests to the backend on port 8000.
+
+For the faculty demo, upload `sample_code_review.diff`. The backend recognizes that exact diff (including Windows line endings), waits three seconds, and displays its prepared review. Other uploaded diffs continue through the normal review pipeline.
+
+Authentication endpoints are `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, and `GET /api/auth/me`. Passwords are stored as salted PBKDF2 hashes; the browser receives a random, HTTP-only session cookie with a 14-day expiry. Existing anonymous reviews in that browser are attached to the account when it first signs in. Set `COOKIE_SECURE=true` when serving the app over HTTPS.
+
 ### Model
-All agents use `claude-haiku-4-5-20251001` at `temperature=0` for deterministic, cost-efficient output. The model is defined once in `src/config.py` — change it there to upgrade all agents simultaneously.
+All agents use the Ollama model configured by `OLLAMA_MODEL` at `temperature=0`. The local default is `qwen2.5-coder:14b`; the GitHub Actions workflow uses `qwen2.5-coder:1.5b` unless overridden by a repository variable.
 
 ## Dependencies
 
 | Package | Purpose |
 |---|---|
 | `langgraph` | Multi-agent graph orchestration |
-| `langchain-anthropic` | Claude model integration |
+| `langchain-ollama` | Local Ollama model integration |
 | `langchain-core` | Message types and base interfaces |
-| `anthropic` | Anthropic Python SDK |
 | `python-dotenv` | `.env` file loading |
