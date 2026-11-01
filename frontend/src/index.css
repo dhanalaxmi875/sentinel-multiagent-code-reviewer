@@ -15,6 +15,7 @@
   --text-primary: #f2f0ff;
   --text-secondary: #b8b1d3;
   --accent: #8b5cf6;
+  --header-h: 104px;
   --critical: #f85149;
   --high: #ff8c42;
   --medium: #e3b341;
@@ -33,7 +34,7 @@
 html {
   min-width: 320px;
   scroll-behavior: smooth;
-  scroll-padding-top: 90px;
+  scroll-padding-top: var(--header-h);
 }
 body {
   min-width: 320px;
@@ -167,7 +168,7 @@ button {
 }
 .app-page {
   min-height: 100vh;
-  padding: 104px 32px 42px 304px;
+  padding: 16px 32px 42px 304px;
 }
 .app-sidebar {
   position: fixed;
@@ -178,20 +179,49 @@ button {
   flex-direction: column;
   padding: 22px 16px;
   border-radius: 26px;
+  overflow: hidden;
+}
+.recent-list {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(196, 181, 253, 0.35) transparent;
 }
 .app-topbar {
-  position: fixed;
+  position: sticky;
   z-index: 25;
-  top: 16px;
-  right: 20px;
-  left: 284px;
+  top: 0;
   display: flex;
   min-height: 68px;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   padding: 10px 18px;
-  border-radius: 22px;
+  width: calc(100% + 8px);
+  margin: -16px -8px 28px -20px;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0 0 22px 22px;
+  background: rgba(12, 9, 32, 0.9);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  backdrop-filter: blur(24px) saturate(140%);
+  box-shadow:
+    0 12px 28px rgba(7, 6, 15, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  isolation: isolate;
+}
+.app-topbar::after {
+  position: absolute;
+  z-index: -1;
+  top: 100%;
+  right: -1px;
+  left: -1px;
+  height: 24px;
+  content: "";
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(12, 9, 32, 0.72), transparent);
 }
 .app-mobile-menu {
   display: none;
@@ -207,8 +237,24 @@ button {
   width: min(1280px, calc(100% - 32px));
   border-radius: 24px;
   transition: opacity 0.3s;
+  background: rgba(12, 9, 32, 0.88);
+  -webkit-backdrop-filter: blur(24px) saturate(145%);
+  backdrop-filter: blur(24px) saturate(145%);
+  isolation: isolate;
+}
+.landing-nav::after {
+  position: absolute;
+  z-index: -1;
+  top: 100%;
+  right: 0;
+  left: 0;
+  height: 24px;
+  content: "";
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(12, 9, 32, 0.72), transparent);
 }
 .landing-nav.is-scrolled {
+  background: rgba(12, 9, 32, 0.92);
   -webkit-backdrop-filter: blur(30px) saturate(160%);
   backdrop-filter: blur(30px) saturate(160%);
 }
@@ -368,6 +414,7 @@ button {
 @media (max-width: 900px) {
   .app-page {
     padding-left: 28px;
+    padding-right: 28px;
   }
   .app-sidebar {
     transform: translateX(calc(-100% - 22px));
@@ -377,7 +424,9 @@ button {
     transform: translateX(0);
   }
   .app-topbar {
-    left: 16px;
+    width: calc(100% + 24px);
+    margin-left: -12px;
+    margin-right: -12px;
   }
   .app-mobile-menu {
     display: inline-flex;
@@ -392,15 +441,17 @@ button {
   }
 }
 @media (max-width: 640px) {
+  :root {
+    --header-h: 98px;
+  }
   .app-page {
-    padding: 98px 16px 30px;
+    padding: 12px 16px 30px;
   }
   .app-topbar {
-    right: 12px;
-    left: 12px;
-    top: 12px;
     min-height: 62px;
     padding: 8px 12px;
+    margin: -12px -4px 24px -4px;
+    width: calc(100% + 8px);
   }
   .app-search {
     display: none;
@@ -418,6 +469,15 @@ button {
   }
   .display-heading {
     letter-spacing: -0.045em;
+  }
+}
+
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  .app-topbar,
+  .landing-nav {
+    background: rgba(12, 9, 32, 0.98);
   }
 }
 @media (prefers-reduced-motion: reduce) {

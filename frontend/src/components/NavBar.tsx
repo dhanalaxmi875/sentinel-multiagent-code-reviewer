@@ -113,7 +113,7 @@ export function NavBar() {
             {reviews?.length ?? 0}
           </span>
         </div>
-        <div className="mt-3 space-y-1">
+        <div className="recent-list mt-3 space-y-1">
           {reviews?.slice(0, 4).map((review) => (
             <Link
               key={review.id}
