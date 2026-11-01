@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>frontend</title>
+    <script type="module" crossorigin src="/assets/index-Cafjx4L6.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/three-core-Cgklqxe1.js">
+    <link rel="modulepreload" crossorigin href="/assets/react-three-fiber-KXNU8I_O.js">
+    <link rel="modulepreload" crossorigin href="/assets/react-three-drei-B9pdktIO.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-OthocORw.css">
+  </head>
+  <body>
+    <div id="root"></div>
+    <style>
+      #sentinel-account { position: fixed; top: 14px; right: 18px; z-index: 10000; display: none; color: #f5f3ff; font: 14px system-ui, sans-serif; }
+      #sentinel-account button { border: 1px solid #ffffff30; color: inherit; cursor: pointer; }
+      #sentinel-account-toggle { width: 42px; height: 42px; border-radius: 50%; background: #7544d8; font-size: 17px; font-weight: 700; }
+      #sentinel-account-menu { position: absolute; top: 50px; right: 0; min-width: 220px; padding: 14px; border: 1px solid #ffffff26; border-radius: 12px; background: #171229; box-shadow: 0 14px 40px #0009; }
+      #sentinel-account-email { display: block; margin-bottom: 12px; color: #d8d2e8; overflow-wrap: anywhere; }
+      #sentinel-account-signout { width: 100%; padding: 9px; border-radius: 8px; background: #ffffff0d; text-align: left; }
+      .app-topbar button[aria-label="User profile placeholder"] { display: none !important; }
+      select.glass-control {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 190px;
+        min-width: 170px;
+        min-height: 44px;
+        padding: 0 42px 0 14px !important;
+        border: 1px solid rgba(196, 181, 253, .22);
+        border-radius: 12px;
+        background-color: rgba(20, 15, 39, .96) !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23c4b5fd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        color: #f5f3ff;
+        cursor: pointer;
+        transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+      }
+      select.glass-control:hover { border-color: rgba(196, 181, 253, .48); background-color: rgba(31, 23, 57, .98) !important; }
+      select.glass-control:focus-visible { outline: none; border-color: rgba(196, 181, 253, .78); box-shadow: 0 0 0 3px rgba(139, 92, 246, .2); }
+      select.glass-control option { padding: 10px 12px; background: #171229; color: #f5f3ff; }
+      select.glass-control option[value="CRITICAL"] { color: #fda4af; }
+      select.glass-control option[value="HIGH"] { color: #fdba74; }
+      select.glass-control option[value="MEDIUM"] { color: #fcd34d; }
+      select.glass-control option[value="LOW"] { color: #86efac; }
+      @media (max-width: 640px) { select.glass-control { width: 100%; min-width: 0; } }
+    </style>
+    <div id="sentinel-account">
+      <button id="sentinel-account-toggle" type="button" aria-label="Account" aria-expanded="false"></button>
+      <div id="sentinel-account-menu" hidden>
+        <span id="sentinel-account-email"></span>
+        <button id="sentinel-account-signout" type="button">Sign out</button>
+      </div>
+    </div>
+    <script>
+      (() => {
+        const account = document.getElementById("sentinel-account");
+        const toggle = document.getElementById("sentinel-account-toggle");
+        const menu = document.getElementById("sentinel-account-menu");
+        const emailLabel = document.getElementById("sentinel-account-email");
+        const nativeFetch = window.fetch.bind(window);
+        window.fetch = (input, options = {}) => {
+          const url = typeof input === "string" ? input : input.url || input.href || "";
+          const isApiRequest = new URL(url, location.href).pathname.startsWith("/api/");
+          return nativeFetch(input, isApiRequest ? { ...options, credentials: "include" } : options);
+        };
+        const apiFetch = (url, options = {}) => fetch(url, { ...options, credentials: "include" });
+
+        toggle.addEventListener("click", () => {
+          menu.hidden = !menu.hidden;
+          toggle.setAttribute("aria-expanded", String(!menu.hidden));
+        });
+        document.getElementById("sentinel-account-signout").addEventListener("click", async () => {
+          await apiFetch("/api/auth/logout", { method: "POST" });
+          location.replace("/login");
+        });
+
+        apiFetch("/api/auth/me")
+          .then(async (response) => {
+            if (response.status === 401) {
+              location.replace("/login");
+              return null;
+            }
+            if (!response.ok) return null;
+            return response.json();
+          })
+          .then((user) => {
+            if (!user) return;
+            emailLabel.textContent = user.email;
+            toggle.textContent = user.email.trim().charAt(0).toUpperCase();
+            account.style.display = "block";
+          })
+          .catch(() => {});
+      })();
+    </script>
+  </body>
+</html>

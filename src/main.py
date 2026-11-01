@@ -25,15 +25,24 @@ from src.logger import get_logger
 _log = get_logger("main")
 
 
-def run_review(code_diff: str, file_paths: list[str] | None = None) -> str:
+def run_review(
+    code_diff: str,
+    file_paths: list[str] | None = None,
+    *,
+    node_callback=None,
+    capture_verifier_trace: bool = False,
+) -> str | dict:
     """Run the multi-agent code review pipeline on a code diff.
 
     Args:
         code_diff: A unified diff string (e.g., from `git diff`).
         file_paths: Optional list of changed file paths for smarter routing.
+        node_callback: Optional callback invoked with agent events.
+        capture_verifier_trace: If True, return a dict with trace data.
 
     Returns:
-        The final review as a formatted string.
+        The final review as a formatted string, or a dict when
+        capture_verifier_trace is True.
     """
     graph = build_graph()
     code_diff = prepare_diff(code_diff)
@@ -54,8 +63,32 @@ def run_review(code_diff: str, file_paths: list[str] | None = None) -> str:
 
     config = {"configurable": {"thread_id": str(uuid.uuid4())}}
 
-    result = graph.invoke(initial_state, config=config)
-    return result["final_review"]
+    # Stream through nodes so we can fire the callback on each step
+    if node_callback:
+        import time as _time
+
+        result = {}
+        for event in graph.stream(initial_state, config=config):
+            for node_name, node_output in event.items():
+                started = _time.perf_counter()
+                node_callback({"event": "start", "node": node_name, "state": dict(initial_state)})
+                duration = _time.perf_counter() - started
+                node_callback({
+                    "event": "end",
+                    "node": node_name,
+                    "status": "done",
+                    "duration_s": duration,
+                    "output": node_output,
+                })
+                result.update(node_output)
+        if capture_verifier_trace:
+            return result
+        return result.get("final_review", "")
+    else:
+        result = graph.invoke(initial_state, config=config)
+        if capture_verifier_trace:
+            return dict(result)
+        return result["final_review"]
 
 
 if __name__ == "__main__":

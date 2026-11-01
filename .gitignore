@@ -12,6 +12,17 @@ dist/
 build/
 .venv/
 venv/
+node_modules/
+.vite/
+.ruff_cache/
+.uv-cache/
+
+# Local runtime data
+backend/data/
+
+# The backend serves this prebuilt UI; keep its distributable files in Git.
+!frontend/dist/
+!frontend/dist/**
 
 # IDE
 .vscode/
