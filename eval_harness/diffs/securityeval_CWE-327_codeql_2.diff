@@ -1,0 +1,22 @@
+diff --git a/CWE-327_codeql_2.py b/CWE-327_codeql_2.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-327_codeql_2.py
+@@ -0,0 +1,17 +import socket
+import ssl
+
+
+def connect(host, port):
+    '''
+    Create a client SSL socket that uses IPV4 and the TCP protocol, and
+    connect to the socket on the host and port provided as parameter.
+    Then, return the socket.
+    '''
+    ssl_sock = ssl.wrap_socket(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
+    ssl_sock.connect((host, port))
+    return ssl_sock
+
+
+if __name__ == '__main__':
+    connect('localhost', 51)

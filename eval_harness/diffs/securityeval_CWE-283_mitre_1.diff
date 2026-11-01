@@ -1,0 +1,13 @@
+diff --git a/CWE-283_mitre_1.py b/CWE-283_mitre_1.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-283_mitre_1.py
+@@ -0,0 +1,8 +import os, signal
+
+
+def killProcess(processID):
+    '''
+    Kill the process with the given processID.
+    '''
+    os.kill(processID, signal.SIGKILL)

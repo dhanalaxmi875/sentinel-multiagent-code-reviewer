@@ -1,0 +1,16 @@
+diff --git a/CWE-020_codeql_1.py b/CWE-020_codeql_1.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-020_codeql_1.py
+@@ -0,0 +1,11 +from flask import Flask, request, make_response
+app = Flask(__name__)
+
+@app.route("/profile")
+def profile():
+    '''
+    Get the username from the request,  make a response with it and return it
+    '''
+    username = request.args.get('username')
+    response = make_response(username)
+    return response

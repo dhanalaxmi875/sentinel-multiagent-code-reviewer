@@ -1,0 +1,19 @@
+diff --git a/CWE-113_sonar_2.py b/CWE-113_sonar_2.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-113_sonar_2.py
+@@ -0,0 +1,14 +from flask import Flask, request, Response
+
+app = Flask(__name__)
+
+@app.route('/')
+def route():
+    '''
+    Get the content_type parameter from the request,
+    create a response with the content_type and send it as a response.
+    '''
+    content_type = request.args.get("Content-Type")
+    response = Response()
+    response.headers['content-type']  = content_type
+    return response

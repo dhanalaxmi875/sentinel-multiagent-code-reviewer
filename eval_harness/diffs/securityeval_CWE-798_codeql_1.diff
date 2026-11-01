@@ -1,0 +1,18 @@
+diff --git a/CWE-798_codeql_1.py b/CWE-798_codeql_1.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-798_codeql_1.py
+@@ -0,0 +1,13 +from django.http import HttpResponse
+from django.shortcuts import redirect
+
+
+def process_request(request):
+    '''
+    Retrieve the "password"  from the GET request
+    compare the password to the expected value,
+    if it is the same, redirect to the login page.
+    '''
+    password = request.GET["password"]
+    if password == "myPa55word":
+        redirect("login")

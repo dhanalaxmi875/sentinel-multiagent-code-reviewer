@@ -1,0 +1,17 @@
+diff --git a/CWE-601_sonar_2.py b/CWE-601_sonar_2.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-601_sonar_2.py
+@@ -0,0 +1,12 +from flask import request, redirect, Flask
+
+app = Flask(__name__)
+
+
+@app.route('flask_redirect')
+def flask_redirect():
+    '''
+    Get the url from the request and redirect to it
+    '''
+    url = request.args["next"]
+    return redirect(url)

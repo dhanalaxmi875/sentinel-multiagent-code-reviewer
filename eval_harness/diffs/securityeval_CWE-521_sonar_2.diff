@@ -1,0 +1,20 @@
+diff --git a/CWE-521_sonar_2.py b/CWE-521_sonar_2.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-521_sonar_2.py
+@@ -0,0 +1,15 +'''
+Define DATABASE variable in the settings for a django application
+'''
+
+
+DATABASES = {
+    'postgresql_db': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'quickdb',
+        'USER': 'sonarsource',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '5432'
+    }
+}

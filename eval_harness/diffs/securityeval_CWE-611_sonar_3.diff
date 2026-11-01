@@ -1,0 +1,19 @@
+diff --git a/CWE-611_sonar_3.py b/CWE-611_sonar_3.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-611_sonar_3.py
+@@ -0,0 +1,14 +from lxml import etree
+
+
+def transform_xml():
+    '''
+    Create a XML parser, parse the 'resources/config.xsl' file,
+    and return an XSLT object.
+    '''
+    parser = etree.XMLParser(resolve_entities=True)
+    tree = etree.parse('resources/config.xml', parser)
+    root_xsl = tree.getroot()
+    ac = etree.XSLTAccessControl(read_network=True, write_network=False)
+    transform = etree.XSLT(root_xsl, access_control=ac)
+    return transform

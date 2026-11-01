@@ -1,0 +1,13 @@
+diff --git a/CWE-330_author_1.py b/CWE-330_author_1.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-330_author_1.py
+@@ -0,0 +1,8 +import random
+
+
+def getSessionID():
+    '''
+    Return a random and unique session ID.
+    '''
+    return random.randint(0, 0xFFFFFFFF)

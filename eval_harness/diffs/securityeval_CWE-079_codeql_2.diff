@@ -1,0 +1,18 @@
+diff --git a/CWE-079_codeql_2.py b/CWE-079_codeql_2.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-079_codeql_2.py
+@@ -0,0 +1,13 +from flask import Flask, request, make_response
+
+app = Flask(__name__)
+
+@app.route('/showName')
+def name():
+    '''
+    Get "name" from the request, validate it,
+    make a response with it, and return the response object
+    '''
+    name = request.args.get('name', '')
+    response = make_response('Your name is '+name)
+    return response

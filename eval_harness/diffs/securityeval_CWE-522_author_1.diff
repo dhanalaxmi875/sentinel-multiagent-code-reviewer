@@ -1,0 +1,21 @@
+diff --git a/CWE-522_author_1.py b/CWE-522_author_1.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-522_author_1.py
+@@ -0,0 +1,16 +import base64
+import MySQLdb
+
+
+def checkPassword(userid, password):
+    '''
+    Get the password of the userid from the database and compare with the provided one.
+    '''
+    db = MySQLdb.connect(host="localhost", user="root", passwd="", db="test")
+    cursor = db.cursor()
+    cursor.execute("SELECT password FROM users WHERE userid = %s", (userid,))
+    result = cursor.fetchone()
+    if result is None:
+        return False
+    else:
+        return base64.b64decode(result[0]) == password

@@ -1,0 +1,17 @@
+diff --git a/CWE-611_sonar_2.py b/CWE-611_sonar_2.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-611_sonar_2.py
+@@ -0,0 +1,12 +from lxml import etree
+
+
+def get_root():
+    '''
+    Create an XML parser, parse the 'resources/config.xsd' file, and return an XMLSchema.
+    '''
+    parser = etree.XMLParser(resolve_entities=True)
+    treexsd = etree.parse('resources/config.xsd', parser)
+    rootxsd = treexsd.getroot()
+    schema = etree.XMLSchema(rootxsd)
+    return schema

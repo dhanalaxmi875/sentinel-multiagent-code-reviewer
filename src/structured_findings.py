@@ -5,6 +5,82 @@ from pathlib import Path
 import re
 
 
+def _infer_cwe_from_finding(title: str, evidence: str) -> str:
+    """
+    Infer CWE ID from finding title and evidence using pattern matching.
+
+    This is a heuristic mapping for common vulnerability patterns.
+    For production use, consider using Semgrep CWE metadata or LLM-based classification.
+
+    Returns:
+        CWE ID string (e.g., "CWE-89") or empty string if no match
+    """
+    combined = f"{title} {evidence}".lower()
+
+    # SQL Injection
+    if "sql injection" in combined:
+        return "CWE-89"
+
+    # OS Command Injection
+    if "command injection" in combined or "os command" in combined or "subprocess" in combined and "shell" in combined:
+        return "CWE-78"
+
+    # Cross-site Scripting (XSS)
+    if "xss" in combined or "cross-site scripting" in combined:
+        return "CWE-79"
+
+    # Path Traversal
+    if "path traversal" in combined or "path injection" in combined or "directory traversal" in combined:
+        return "CWE-22"
+
+    # Hardcoded Credentials
+    if "hardcoded" in combined and ("password" in combined or "secret" in combined or "key" in combined or "token" in combined):
+        return "CWE-798"
+
+    # Deserialization
+    if "deserialization" in combined or "pickle" in combined or "yaml.load" in combined:
+        return "CWE-502"
+
+    # Code Injection
+    if "code injection" in combined or "eval" in combined:
+        return "CWE-94"
+
+    # Weak Cryptography
+    if "weak cryptography" in combined or "weak encryption" in combined or "md5" in combined or "sha1" in combined:
+        return "CWE-327"
+
+    # LDAP Injection
+    if "ldap injection" in combined:
+        return "CWE-90"
+
+    # XML External Entity (XXE)
+    if "xxe" in combined or "xml external entity" in combined:
+        return "CWE-611"
+
+    # Insecure Random
+    if "insecure random" in combined or "weak random" in combined:
+        return "CWE-330"
+
+    # Buffer Overflow
+    if "buffer overflow" in combined:
+        return "CWE-120"
+
+    # Integer Overflow
+    if "integer overflow" in combined:
+        return "CWE-190"
+
+    # NULL Pointer Dereference
+    if "null pointer" in combined or "null dereference" in combined:
+        return "CWE-476"
+
+    # Use After Free
+    if "use after free" in combined:
+        return "CWE-416"
+
+    # Default: no CWE inferred
+    return ""
+
+
 def parse_diff_hunks(diff_text: str) -> dict[str, dict[int, str]]:
     """
     Parse a unified diff and return a mapping of target file paths to added/modified lines.
@@ -191,11 +267,8 @@ def parse_accepted_findings(report: str, diff_text: str | None = None) -> list[d
             if not sources:
                 sources = ["SentinelCode"]
 
-            # Infer CWE if present
-            if "sql injection" in title.lower() or "sql injection" in evidence.lower():
-                cwe = "CWE-89"
-            elif "command injection" in title.lower():
-                cwe = "CWE-78"
+            # Infer CWE if present based on vulnerability patterns
+            cwe = _infer_cwe_from_finding(title, evidence)
 
             # Locate file and line number
             file_path, line_no = extract_file_and_line_from_diff(evidence, title, diff_map)

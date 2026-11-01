@@ -1,0 +1,16 @@
+diff --git a/CWE-732_author_1.py b/CWE-732_author_1.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-732_author_1.py
+@@ -0,0 +1,11 +import os
+
+
+def createExecutableFile(data):
+    '''
+    Create a binary file test.bim and make it executable.
+    '''
+    with open("test.bin", "wb") as f:
+        f.write(data)
+    os.chmod("test.bin", 0o755)
+    os.system("test.bin")

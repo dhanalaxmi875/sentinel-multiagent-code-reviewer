@@ -1,0 +1,15 @@
+diff --git a/CWE-022_author_2.py b/CWE-022_author_2.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-022_author_2.py
+@@ -0,0 +1,10 +import json
+import urllib.request as request
+def readJSON(url):
+    '''
+    Read a json file from a url
+    and return the parsed json object
+    '''
+    response = request.urlopen(url)
+    data = json.loads(response.read())
+    return data

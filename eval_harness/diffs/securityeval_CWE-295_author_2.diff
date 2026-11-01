@@ -1,0 +1,13 @@
+diff --git a/CWE-295_author_2.py b/CWE-295_author_2.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-295_author_2.py
+@@ -0,0 +1,8 +from OpenSSL import SSL
+
+def getContext():
+    '''
+    Create an OpenSSL context and return it.
+    '''
+    ctx = SSL.Context(SSL.TLSv1_2_METHOD)
+    return ctx

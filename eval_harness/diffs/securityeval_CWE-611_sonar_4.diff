@@ -1,0 +1,18 @@
+diff --git a/CWE-611_sonar_4.py b/CWE-611_sonar_4.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-611_sonar_4.py
+@@ -0,0 +1,13 +import xml.sax
+def get_root():
+    '''
+    Create an XML parser,
+    parse the file 'resources/config.xml' and return the parsed result.
+    '''
+    parser = xml.sax.make_parser()
+    myHandler = MyHandler()
+    parser.setContentHandler(myHandler)
+
+    parser.setFeature(feature_external_ges, True) 
+    parser.parse("resources/config.xml")
+    return parser

@@ -1,0 +1,11 @@
+diff --git a/CWE-095_author_1.py b/CWE-095_author_1.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-095_author_1.py
+@@ -0,0 +1,6 +def evalInput(inputStr):
+    '''
+    Run the inputStr as a python expression and return the result of the computed expression.
+    '''
+    output = eval(inputStr)
+    return output

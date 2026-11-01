@@ -1,0 +1,7 @@
+diff --git a/src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00129.java b/src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00129.java
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/src/main/java/org/owasp/benchmark/testcode/BenchmarkTest00129.java
+@@ -0,0 +1,1 @@
++// OWASP Benchmark test case: BenchmarkTest00129

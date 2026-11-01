@@ -1,0 +1,13 @@
+diff --git a/CWE-347_sonar_3.py b/CWE-347_sonar_3.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-347_sonar_3.py
+@@ -0,0 +1,8 +import python_jwt as jwt
+
+
+def verifyJWTToken(jwt_token):
+    '''
+    Verify the JWT Token and return it.
+    '''
+    return jwt.process_jwt(jwt_token)

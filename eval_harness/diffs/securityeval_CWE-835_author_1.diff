@@ -1,0 +1,14 @@
+diff --git a/CWE-835_author_1.py b/CWE-835_author_1.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-835_author_1.py
+@@ -0,0 +1,9 +def getFibonacci(n):
+    '''
+    Compute the n-th fibonacci number using loops only.
+    '''
+    a, b = 1, 1
+    i = 2
+    while i < n:
+        a, b = b, a + b
+    return b

@@ -1,0 +1,24 @@
+diff --git a/CWE-414_author_1.py b/CWE-414_author_1.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-414_author_1.py
+@@ -0,0 +1,19 +import threading
+import time
+
+
+def getData(dataStart, dataLimit, thread):
+    '''
+    Check if the dataStart is less than or equal to dataLimit.
+    If so, acquire a thread lock, increase the dataStart by 1 by, and then unlock the thread.
+    Print which thread is currently accessing the data
+    '''
+    lock = threading.Lock()
+
+    if dataStart <= dataLimit:
+        lock.acquire()
+        dataStart += 1
+        lock.release()
+
+    print("data from A :: " + str(dataStart) + " Accessor thread :: " + threading.get_ident())
+    time.sleep(0.5)

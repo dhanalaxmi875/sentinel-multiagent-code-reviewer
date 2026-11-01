@@ -1,0 +1,17 @@
+diff --git a/CWE-215_codeql_1.py b/CWE-215_codeql_1.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-215_codeql_1.py
+@@ -0,0 +1,12 +from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/crash')
+def main():
+    raise Exception()
+
+'''
+Run the flask application.
+'''
+app.run(debug=True)

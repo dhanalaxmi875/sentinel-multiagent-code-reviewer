@@ -1,0 +1,22 @@
+diff --git a/CWE-918_codeql_2.py b/CWE-918_codeql_2.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-918_codeql_2.py
+@@ -0,0 +1,17 +import requests
+from flask import Flask, request
+
+app = Flask(__name__)
+
+
+@app.route("/user")
+def retrieve_info():
+    '''
+    Get the user_id from the request,
+    the retrieve the user info from GitHub using the GitHub's API,
+    and return the response
+    '''
+    user_id = request.args["user_id"]
+    url = "https://api.github.com/users/" + user_id
+    response = requests.get(url)
+    return response.text

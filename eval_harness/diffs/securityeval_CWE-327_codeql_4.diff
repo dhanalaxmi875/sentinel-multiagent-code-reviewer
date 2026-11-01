@@ -1,0 +1,12 @@
+diff --git a/CWE-327_codeql_4.py b/CWE-327_codeql_4.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-327_codeql_4.py
+@@ -0,0 +1,7 +import hashlib
+
+def get_password_hash(password: str, salt: str):
+    '''
+    Return a hash of the password and salt.
+    '''
+    return hashlib.sha256(password + salt).hexdigest()

@@ -1,0 +1,13 @@
+diff --git a/CWE-078_author_1.py b/CWE-078_author_1.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-078_author_1.py
+@@ -0,0 +1,8 +import subprocess
+
+def executeCommand():
+    '''
+    Read a command from a user input, validate it, and execute it
+    '''
+    user_input = input("Enter a command: ")
+    subprocess.call([user_input], shell=True)

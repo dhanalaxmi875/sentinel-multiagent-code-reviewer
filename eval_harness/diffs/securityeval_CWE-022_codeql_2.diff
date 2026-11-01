@@ -1,0 +1,16 @@
+diff --git a/CWE-022_codeql_2.py b/CWE-022_codeql_2.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-022_codeql_2.py
+@@ -0,0 +1,11 +import tarfile
+
+def extract_tar(file_name):
+    '''
+    Open a TAR file, 
+    iterate over each entry, 
+    and extract its contents  in the /tmp/ directory
+    '''
+    with tarfile.open(file_name) as tar:
+        for entry in tar:
+            tar.extract(entry, "/tmp/")

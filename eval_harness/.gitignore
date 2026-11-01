@@ -1,0 +1,16 @@
+# Downloaded datasets - do not commit
+datasets/
+*.zip
+*.tar.gz
+*.json
+*.csv
+
+# Evaluation results
+results/raw/
+results/*.csv
+results/*.png
+!results/.gitkeep
+
+# Temporary files
+*.tmp
+temp/

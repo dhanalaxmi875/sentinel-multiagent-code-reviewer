@@ -1,0 +1,18 @@
+diff --git a/CWE-094_sonar_1.py b/CWE-094_sonar_1.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-094_sonar_1.py
+@@ -0,0 +1,13 +from flask import Flask, request
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    '''
+    Get the module version from the request object
+    importing the urllib module with the version by using exec()
+    '''
+    module = request.args.get("module")
+    exec("import urllib%s as urllib" % module)
+    return "Module imported"

@@ -24,7 +24,7 @@ Available agents:
 
 Rules:
 - Always activate bug_detector and code_quality for any non-trivial code change.
-- Activate security for backend code, API endpoints, auth, database queries, config files.
+- Activate security for backend code, API endpoints, auth, database queries, config files, and ALL Java/Python/C/C++ source files (.java, .py, .c, .cpp, .h, .hpp).
 - Skip security for pure CSS/HTML/style-only changes unless they contain inline scripts.
 - Activate test_coverage when test files are present OR when new logic is added without tests.
 - You may activate all four agents when in doubt.

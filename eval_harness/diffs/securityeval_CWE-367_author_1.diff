@@ -1,0 +1,17 @@
+diff --git a/CWE-367_author_1.py b/CWE-367_author_1.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-367_author_1.py
+@@ -0,0 +1,12 +import os
+
+
+def readFile(fileName):
+    '''
+    Check if the file passed as argument exists,
+    then read the file and return its content.
+    '''
+
+    if os.path.exists(fileName):
+        with open(fileName, 'r') as f:
+            return f.read()

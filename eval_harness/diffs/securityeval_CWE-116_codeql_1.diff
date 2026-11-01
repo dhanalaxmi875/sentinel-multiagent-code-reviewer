@@ -1,0 +1,17 @@
+diff --git a/CWE-116_codeql_1.py b/CWE-116_codeql_1.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-116_codeql_1.py
+@@ -0,0 +1,12 +import re
+
+
+def filterScriptTags(content):
+    '''
+    Remove <script> tags from the content argument.
+    '''
+    oldContent = ""
+    while oldContent != content:
+        oldContent = content
+        content = re.sub(r'<script.*?>.*?</script>', '', content, flags=re.DOTALL | re.IGNORECASE)
+    return content

@@ -1,0 +1,14 @@
+diff --git a/CWE-326_author_2.py b/CWE-326_author_2.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-326_author_2.py
+@@ -0,0 +1,9 +from Crypto.PublicKey import DSA
+
+def generate_private_key():
+    '''
+    Generate a private key using DSA,
+    export the key using the OpenSSH format,
+    then return it.
+    '''
+    return DSA.generate(1024)

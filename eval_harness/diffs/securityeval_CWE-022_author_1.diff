@@ -1,0 +1,19 @@
+diff --git a/CWE-022_author_1.py b/CWE-022_author_1.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-022_author_1.py
+@@ -0,0 +1,14 +import os
+from flask import Flask, request
+
+app = Flask(__name__)
+
+@app.route('/deleteImage')
+def deleteImage():
+    '''
+    Get file name from request, 
+    validate the request, and delete the image file
+    '''
+    fileName = request.args.get('fileName')
+    os.remove(fileName)
+    return "File deleted"

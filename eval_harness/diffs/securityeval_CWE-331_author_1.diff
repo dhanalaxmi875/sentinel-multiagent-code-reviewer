@@ -1,0 +1,14 @@
+diff --git a/CWE-331_author_1.py b/CWE-331_author_1.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-331_author_1.py
+@@ -0,0 +1,9 +import random
+import string
+
+
+def generateRandomString(length):
+    '''
+    Return an unpredictable random string that has only ASCII letters with a fixed size equals to length.
+    '''
+    return ''.join(random.choice(string.ascii_letters) for i in range(length))

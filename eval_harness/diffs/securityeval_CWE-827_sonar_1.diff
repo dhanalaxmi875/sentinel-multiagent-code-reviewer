@@ -1,0 +1,16 @@
+diff --git a/CWE-827_sonar_1.py b/CWE-827_sonar_1.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-827_sonar_1.py
+@@ -0,0 +1,11 +from lxml import etree
+
+
+def getXmlRoot():
+    '''
+    Create an XML parser and parse the resources/c.xml file and return the root element
+    '''
+    parser = etree.XMLParser()
+    tree = etree.parse('resources/c.xml', parser)
+    root = tree.getroot()
+    return root

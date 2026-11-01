@@ -1,0 +1,16 @@
+diff --git a/CWE-327_codeql_1.py b/CWE-327_codeql_1.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-327_codeql_1.py
+@@ -0,0 +1,11 +from Crypto.Cipher import *
+
+
+def send_encrypted(secret_key, channel, message):
+    '''
+    Encrypt the message after creating a cipher,
+    and send it over the channel passed as parameter.
+    '''
+    cipher = DES.new(secret_key)
+    encrypted = cipher.encrypt(message)
+    channel.send(encrypted)

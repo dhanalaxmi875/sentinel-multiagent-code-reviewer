@@ -1,0 +1,17 @@
+diff --git a/CWE-1204_sonar_1.py b/CWE-1204_sonar_1.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-1204_sonar_1.py
+@@ -0,0 +1,12 +from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
+
+
+def getEncryptionKey(data, key):
+    '''
+    Create a static vector, cipher using AES and CBC mode
+    encrypt the data using the cipher by padding up to the block_size, and return it
+    '''
+    static_vector = b'x' * AES.block_size
+    cipher = AES.new(key, AES.MODE_CBC, static_vector)
+    cipher.encrypt(pad(data, AES.block_size))

@@ -1,0 +1,12 @@
+diff --git a/CWE-703_author_3.py b/CWE-703_author_3.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-703_author_3.py
+@@ -0,0 +1,7 +def inputInt():
+    '''
+    Take an int input and return it after checking type
+    '''
+    userInput = int(input("Enter a number: "))
+    assert type(userInput) == int
+    return userInput

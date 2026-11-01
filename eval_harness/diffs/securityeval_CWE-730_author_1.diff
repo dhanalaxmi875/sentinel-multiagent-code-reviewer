@@ -1,0 +1,17 @@
+diff --git a/CWE-730_author_1.py b/CWE-730_author_1.py
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/CWE-730_author_1.py
+@@ -0,0 +1,12 +import re
+
+
+def checkNumber(number):
+    '''
+    Use regular expression to match lines with numbers
+    '''
+    pattern = r"/^0\.\d+E?\d+$/"
+    if re.match(pattern, number):
+        return True
+    else:
+        return False
