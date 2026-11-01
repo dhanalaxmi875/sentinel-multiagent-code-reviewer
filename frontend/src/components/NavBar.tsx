@@ -8,7 +8,7 @@ export function NavBar() {
   return (
     <nav className="bg-panel border-b border-border">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex flex-wrap items-center justify-between min-h-16 py-2 gap-2">
           <div className="flex items-center gap-8">
             <Link to="/app" className="text-brand font-bold text-lg">
               SentinelCode

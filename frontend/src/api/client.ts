@@ -9,13 +9,15 @@ import type {
 } from './types';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000').replace(/\/$/, '');
 
 // Generate client token on first visit
-let clientToken: string | null = localStorage.getItem('client_token');
-if (!clientToken) {
-  clientToken = crypto.randomUUID();
-  localStorage.setItem('client_token', clientToken);
+function getClientToken(): string {
+  const existing = localStorage.getItem('client_token');
+  if (existing) return existing;
+  const token = crypto.randomUUID();
+  localStorage.setItem('client_token', token);
+  return token;
 }
 
 async function request<T>(
@@ -25,7 +27,7 @@ async function request<T>(
   const url = `${API_BASE_URL}${endpoint}`;
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
-    'X-Client-Token': clientToken || '',
+    'X-Client-Token': getClientToken(),
     ...options.headers,
   };
 
@@ -35,7 +37,8 @@ async function request<T>(
     throw new Error(`API error: ${response.status} ${response.statusText}`);
   }
 
-  return response.json();
+  if (response.status === 204) return undefined as T;
+  return response.json() as Promise<T>;
 }
 
 // Mock Data - clearly marked
@@ -135,14 +138,24 @@ index 1234567..abcdef 100644
 ];
 
 // Mock API
+const submittedAt = new Map<string, number>();
+let mockSequence = 2;
+const demoCompletedReview = MOCK_REVIEWS[0];
 const mockApi = {
   async createReview(req: CreateReviewRequest): Promise<CreateReviewResponse> {
     await new Promise(r => setTimeout(r, 500));
-    console.log('Mock createReview called with:', req.diff_text.slice(0, 100));
-    return { id: 'mock-1', status: 'queued' };
+    const id = `mock-${++mockSequence}`;
+    const now = new Date().toISOString();
+    const review: Review = { ...MOCK_REVIEWS[0], id, status: 'running', verdict: undefined, duration_s: undefined, diff_text: req.diff_text, agents: MOCK_REVIEWS[0].agents.map((agent, index) => ({ ...agent, status: index === 0 ? 'done' : 'idle' })), findings: [], created_at: now, finished_at: undefined, report_md: undefined };
+    MOCK_REVIEWS.unshift(review);
+    submittedAt.set(id, Date.now());
+    return { id, status: 'queued' };
   },
   async getReviews(): Promise<ReviewSummary[]> {
     await new Promise(r => setTimeout(r, 300));
+    for (const review of MOCK_REVIEWS) {
+      if (submittedAt.has(review.id)) await mockApi.getReview(review.id);
+    }
     return MOCK_REVIEWS.map(r => ({
       id: r.id,
       status: r.status,
@@ -161,12 +174,30 @@ const mockApi = {
     await new Promise(r => setTimeout(r, 300));
     const review = MOCK_REVIEWS.find(r => r.id === id);
     if (!review) throw new Error('Review not found');
+    const started = submittedAt.get(id);
+    if (started !== undefined) {
+      const elapsed = Date.now() - started;
+      if (elapsed > 6500) {
+        review.status = 'done';
+        review.verdict = 'REQUEST_CHANGES';
+        review.duration_s = Math.round(elapsed / 1000);
+        review.finished_at = new Date().toISOString();
+        review.agents = demoCompletedReview.agents.map((agent) => ({ ...agent, status: 'done' }));
+        review.findings = demoCompletedReview.findings;
+        review.report_md = '# Review report\n\nThe demo review completed. Findings are illustrative demo data.';
+        submittedAt.delete(id);
+      } else {
+        review.status = elapsed > 1800 ? 'running' : 'queued';
+        review.agents = review.agents.map((agent, index) => ({ ...agent, status: elapsed > index * 700 + 500 ? 'running' : agent.status }));
+      }
+    }
     return review;
   },
   async deleteReview(id: string): Promise<void> {
     await new Promise(r => setTimeout(r, 300));
     const idx = MOCK_REVIEWS.findIndex(r => r.id === id);
     if (idx === -1) throw new Error('Review not found');
+    submittedAt.delete(id);
     MOCK_REVIEWS.splice(idx, 1);
   },
   async getSamples(): Promise<Sample[]> {
@@ -176,25 +207,26 @@ const mockApi = {
         id: 'banking-api',
         name: 'Banking API Demo',
         description: 'Intentional vulnerabilities: SQL injection, hardcoded secrets, command injection',
-        diff_text: MOCK_REVIEWS[0].diff_text,
+        diff_text: demoCompletedReview.diff_text,
       },
     ];
   },
   async getStats(): Promise<Stats> {
     await new Promise(r => setTimeout(r, 300));
+    const finished = MOCK_REVIEWS.filter(review => review.status === 'done');
     return {
       total_reviews: MOCK_REVIEWS.length,
       finding_counts: {
-        critical: 3,
-        high: 0,
-        medium: 0,
-        low: 0,
+        critical: finished.flatMap(r => r.findings).filter(f => f.severity === 'CRITICAL' && f.status === 'kept').length,
+        high: finished.flatMap(r => r.findings).filter(f => f.severity === 'HIGH' && f.status === 'kept').length,
+        medium: finished.flatMap(r => r.findings).filter(f => f.severity === 'MEDIUM' && f.status === 'kept').length,
+        low: finished.flatMap(r => r.findings).filter(f => f.severity === 'LOW' && f.status === 'kept').length,
       },
       verdict_split: {
-        approve: 0,
-        request_changes: 1,
+        approve: finished.filter(r => r.verdict === 'APPROVE').length,
+        request_changes: finished.filter(r => r.verdict === 'REQUEST_CHANGES').length,
       },
-      avg_review_time_s: 45,
+      avg_review_time_s: finished.length ? finished.reduce((sum, r) => sum + (r.duration_s ?? 0), 0) / finished.length : 0,
     };
   },
 };

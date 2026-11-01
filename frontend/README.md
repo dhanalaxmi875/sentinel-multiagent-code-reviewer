@@ -75,7 +75,7 @@ VITE_API_BASE_URL=http://localhost:8000
 
 ## API Contract
 
-The frontend communicates with the backend via REST API. All requests include an `X-Client-Token` header (UUID) generated on first visit.
+The typed client in `src/api/` communicates with the backend via REST API. All requests include a persistent per-browser UUID `X-Client-Token` header. Set `VITE_API_BASE_URL` to the API origin; it defaults to `http://localhost:8000`.
 
 ### Endpoints
 
@@ -201,10 +201,12 @@ Get user statistics.
 
 When `VITE_USE_MOCK=true`, the frontend uses a mock API client that:
 
-- Simulates async review lifecycle (queued → running → done)
+- Simulates the queued → running → done lifecycle for submitted reviews
 - Includes one failed review and one with rejected findings
-- Shows a "Demo data" badge on review pages
+- Shows a "Demo data" badge on demo screens
 - Does not require a running backend
+
+`npm test` runs Vitest once and exits. In production mode, all endpoints use the contract above; the dashboard displays statistics returned for the current client token only.
 
 ## Type Definitions
 

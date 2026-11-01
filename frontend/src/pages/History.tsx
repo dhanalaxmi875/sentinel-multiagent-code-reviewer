@@ -1,12 +1,14 @@
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { Badge } from '../components/Badge';
 import { Trash2, Clock } from 'lucide-react';
 import { NavBar } from '../components/NavBar';
+import { Skeleton } from '../components/Skeleton';
 
 export default function History() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: reviews, isLoading } = useQuery({
     queryKey: ['reviews'],
     queryFn: () => api.getReviews(),
@@ -14,24 +16,22 @@ export default function History() {
 
   const deleteReview = useMutation({
     mutationFn: (id: string) => api.deleteReview(id),
-    onSuccess: () => {
-      // Refetch will happen automatically
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reviews'] }),
   });
 
-  if (isLoading) return <div className="p-8 text-secondary">Loading...</div>;
+  if (isLoading) return <div className="min-h-screen bg-page"><NavBar/><main className="p-8 space-y-4"><Skeleton variant="title"/><Skeleton variant="card"/></main></div>;
 
   return (
     <div>
       <NavBar />
-      <div className="p-8">
-        <h1 className="text-2xl font-bold mb-8 uppercase tracking-wider text-secondary">
+      <main className="p-8 max-w-7xl mx-auto">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-8"><h1 className="text-2xl font-bold uppercase tracking-wider text-secondary">
           History
-        </h1>
+        </h1>{import.meta.env.VITE_USE_MOCK === 'true' && <Badge variant="brand">Demo data</Badge>}</div>
 
       {reviews && reviews.length > 0 ? (
-        <div className="bg-panel border border-border rounded-lg overflow-hidden">
-          <table className="w-full">
+        <div className="bg-panel border border-border rounded-lg overflow-x-auto">
+          <table className="w-full min-w-[760px]">
             <thead>
               <tr className="border-b border-border">
                 <th className="text-left p-4 text-secondary uppercase tracking-wider text-sm">Status</th>
@@ -83,7 +83,7 @@ export default function History() {
                       View
                     </button>
                     <button
-                      onClick={() => deleteReview.mutate(review.id)}
+                      onClick={() => { if (window.confirm('Delete this review?')) deleteReview.mutate(review.id); }}
                       className="text-secondary hover:text-critical"
                     >
                       <Trash2 size={16} />
@@ -99,7 +99,7 @@ export default function History() {
           No reviews yet. Create your first review.
         </div>
       )}
-      </div>
+      </main>
     </div>
   );
 }

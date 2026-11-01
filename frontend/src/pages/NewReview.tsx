@@ -4,12 +4,16 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { FileText, Upload } from 'lucide-react';
 import { NavBar } from '../components/NavBar';
+import { validateDiff, MAX_DIFF_CHARS } from '../utils/diffValidation';
+import { Badge } from '../components/Badge';
+import { Toast } from '../components/Toast';
 
 export default function NewReview() {
   const navigate = useNavigate();
   const [diff, setDiff] = useState('');
   const [filePaths, setFilePaths] = useState('');
   const [error, setError] = useState('');
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const { data: samples } = useQuery({
     queryKey: ['samples'],
@@ -21,18 +25,14 @@ export default function NewReview() {
     onSuccess: (data) => {
       navigate(`/app/reviews/${data.id}`);
     },
+    onError: (submissionError) => setToast({ message: submissionError.message, type: 'error' }),
   });
-
-  const validateDiff = (text: string): boolean => {
-    if (!text.trim()) return false;
-    if (text.length > 40000) return false;
-    return text.includes('diff --git') || text.includes('---') || text.includes('+++');
-  };
 
   const handleSubmit = () => {
     setError('');
-    if (!validateDiff(diff)) {
-      setError('Please enter a valid unified diff (max 40,000 characters)');
+    const validationError = validateDiff(diff);
+    if (validationError) {
+      setError(validationError);
       return;
     }
     createReview.mutate({
@@ -52,7 +52,7 @@ export default function NewReview() {
       <div className="bg-panel border border-border rounded-lg p-6 mb-6">
         <div className="flex justify-between items-center mb-4">
           <p className="text-secondary text-sm">
-            Your diffs are stored locally on this server and can be deleted anytime.
+            Your diff is sent to the configured review server for analysis and stored with your review until you delete it.
           </p>
           <label className="flex items-center gap-2 text-brand hover:text-brand/80 cursor-pointer text-sm">
             <Upload size={16} />
@@ -75,13 +75,15 @@ export default function NewReview() {
           </label>
         </div>
         <textarea
+          aria-label="Unified diff"
+          maxLength={MAX_DIFF_CHARS}
           value={diff}
           onChange={(e) => setDiff(e.target.value)}
           placeholder="Paste your unified diff here..."
           className="w-full h-64 bg-page border border-border rounded-lg p-4 font-mono text-sm text-text placeholder-secondary focus:outline-none focus:border-brand"
         />
         <div className="flex justify-between mt-2 text-sm text-secondary">
-          <span>{diff.length} / 40000 characters</span>
+          <span aria-live="polite">{diff.length.toLocaleString()} / {MAX_DIFF_CHARS.toLocaleString()} characters</span>
           {error && <span className="text-critical">{error}</span>}
         </div>
       </div>
@@ -105,13 +107,15 @@ export default function NewReview() {
         {samples?.map((sample) => (
           <button
             key={sample.id}
-            onClick={() => setDiff(sample.diff_text)}
+            onClick={() => { setDiff(sample.diff_text); setToast({ message: `${sample.name} loaded`, type: 'success' }); }}
             className="block w-full text-left p-3 bg-page border border-border rounded hover:border-brand transition-colors mb-2"
           >
             <div className="font-medium">{sample.name}</div>
             <div className="text-sm text-secondary">{sample.description}</div>
           </button>
         ))}
+        {samples?.length === 0 && <p className="text-sm text-secondary">No sample diffs are available.</p>}
+        {import.meta.env.VITE_USE_MOCK === 'true' && <div className="mt-3"><Badge variant="brand">Demo data</Badge></div>}
       </div>
 
       <button
@@ -121,6 +125,8 @@ export default function NewReview() {
       >
         {createReview.isPending ? 'Creating...' : 'Submit Review'}
       </button>
+      {createReview.isError && <p role="alert" className="mt-3 text-critical">{createReview.error.message}</p>}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       </div>
     </div>
   );

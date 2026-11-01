@@ -35,6 +35,8 @@ export function Toast({ message, type, onClose }: ToastProps) {
 
   return (
     <div
+      role="status"
+      aria-live={type === 'error' ? 'assertive' : 'polite'}
       className={`fixed bottom-4 right-4 max-w-sm w-full p-4 rounded-lg border ${bgColors[type]} transition-all duration-300 ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
       }`}

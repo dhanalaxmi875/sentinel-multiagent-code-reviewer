@@ -4,6 +4,8 @@ import { Shield, Clock, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { NavBar } from '../components/NavBar';
 import { Badge } from '../components/Badge';
+import { Skeleton } from '../components/Skeleton';
+import { landingConfig } from '../config/landing';
 
 export default function Dashboard() {
   const { data: stats, isLoading } = useQuery({
@@ -20,7 +22,7 @@ export default function Dashboard() {
     return (
       <div>
         <NavBar />
-        <div className="p-8 text-secondary">Loading...</div>
+        <main className="p-8 space-y-4" aria-label="Loading dashboard"><Skeleton variant="title"/><div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">{Array.from({length: 4}, (_, index) => <Skeleton key={index} variant="card" />)}</div></main>
       </div>
     );
   }
@@ -29,12 +31,12 @@ export default function Dashboard() {
     <div>
       <NavBar />
       <div className="p-8">
-        <h1 className="text-2xl font-bold mb-8 uppercase tracking-wider text-secondary">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-8"><h1 className="text-2xl font-bold uppercase tracking-wider text-secondary">
           Dashboard
-        </h1>
+        </h1>{landingConfig.stats.reviewsRun === null && import.meta.env.VITE_USE_MOCK === 'true' && <Badge variant="brand">Demo data</Badge>}</div>
 
         {/* KPI Cards */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <div className="bg-panel border border-border rounded-lg p-6">
           <div className="flex items-center gap-3 mb-2">
             <Shield className="w-5 h-5 text-brand" />
@@ -43,28 +45,30 @@ export default function Dashboard() {
           <div className="text-3xl font-bold">{stats?.total_reviews ?? 0}</div>
         </div>
 
-        <div className="bg-panel border border-border rounded-lg p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <AlertTriangle className="w-5 h-5 text-critical" />
-            <span className="text-secondary text-sm uppercase tracking-wider">Critical</span>
-          </div>
-          <div className="text-3xl font-bold text-critical">{stats?.finding_counts.critical ?? 0}</div>
-        </div>
+        {(['critical', 'high', 'medium', 'low'] as const).map((severity) => {
+          const color = { critical: 'text-critical', high: 'text-high', medium: 'text-medium', low: 'text-low' }[severity];
+          return <div key={severity} className="bg-panel border border-border rounded-lg p-6">
+            <div className="flex items-center gap-3 mb-2"><AlertTriangle className={`w-5 h-5 ${color}`} /><span className="text-secondary text-sm uppercase tracking-wider">{severity} findings</span></div>
+            <div className={`text-3xl font-bold ${color}`}>{stats?.finding_counts[severity] ?? '—'}</div>
+          </div>;
+        })}
 
         <div className="bg-panel border border-border rounded-lg p-6">
           <div className="flex items-center gap-3 mb-2">
             <CheckCircle className="w-5 h-5 text-safe" />
-            <span className="text-secondary text-sm uppercase tracking-wider">Approve</span>
+            <span className="text-secondary text-sm uppercase tracking-wider">Approved</span>
           </div>
-          <div className="text-3xl font-bold text-safe">{stats?.verdict_split.approve ?? 0}</div>
+          <div className="text-3xl font-bold text-safe">{stats?.verdict_split.approve ?? '—'}</div>
         </div>
+
+        <div className="bg-panel border border-border rounded-lg p-6"><div className="flex items-center gap-3 mb-2"><AlertTriangle className="w-5 h-5 text-critical"/><span className="text-secondary text-sm uppercase tracking-wider">Changes requested</span></div><div className="text-3xl font-bold text-critical">{stats?.verdict_split.request_changes ?? '—'}</div></div>
 
         <div className="bg-panel border border-border rounded-lg p-6">
           <div className="flex items-center gap-3 mb-2">
             <Clock className="w-5 h-5 text-brand" />
             <span className="text-secondary text-sm uppercase tracking-wider">Avg Time</span>
           </div>
-          <div className="text-3xl font-bold">{stats?.avg_review_time_s ?? 0}s</div>
+          <div className="text-3xl font-bold">{stats?.avg_review_time_s ?? '—'}{stats ? 's' : ''}</div>
         </div>
       </div>
 

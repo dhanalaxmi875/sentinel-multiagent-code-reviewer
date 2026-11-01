@@ -9,8 +9,8 @@ import NotFound from './pages/NotFound';
 
 function App() {
   return (
-    <ErrorBoundary>
-      <BrowserRouter>
+    <BrowserRouter>
+      <ErrorBoundary>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/app" element={<Dashboard />} />
@@ -19,8 +19,8 @@ function App() {
           <Route path="/app/history" element={<History />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </BrowserRouter>
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </BrowserRouter>
   );
 }
 

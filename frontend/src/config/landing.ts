@@ -6,10 +6,6 @@ export const landingConfig = {
     findingsDetected: null,
     avgReviewTime: null,
   },
-  team: [
-    { name: 'Team Member 1', role: 'Lead Developer' },
-    { name: 'Team Member 2', role: 'Security Engineer' },
-    { name: 'Team Member 3', role: 'ML Engineer' },
-    { name: 'Team Member 4', role: 'DevOps Engineer' },
-  ],
+  // Add verified team members here when names and roles are provided.
+  team: [] as { name: string; role: string }[],
 };

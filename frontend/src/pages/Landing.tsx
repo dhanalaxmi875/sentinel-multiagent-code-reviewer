@@ -30,63 +30,41 @@ export default function Landing() {
         </div>
       </section>
 
+      {Object.values(landingConfig.stats).some(value => value !== null) && (
+        <section className="px-4 pb-12 max-w-5xl mx-auto" aria-label="Project statistics">
+          <div className="grid sm:grid-cols-3 gap-4">
+            {Object.entries(landingConfig.stats).filter((entry): entry is [string, number] => typeof entry[1] === 'number').map(([label, value]) => (
+              <div key={label} className="bg-panel border border-border rounded-lg p-5"><div className="text-2xl font-bold">{value}</div><div className="text-sm text-secondary">{label.replace(/[A-Z]/g, letter => ` ${letter}`).trim()}</div></div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="px-4 py-12 max-w-5xl mx-auto" aria-labelledby="problem-title">
+        <div className="bg-panel border border-border rounded-lg p-6 md:p-8">
+          <h2 id="problem-title" className="text-xl font-semibold mb-3">Code review needs more than one perspective</h2>
+          <p className="text-secondary leading-relaxed">A single pass can miss security flaws, behavioral bugs, and gaps in test coverage. SentinelCode coordinates focused reviewers, checks security patterns with Semgrep, and verifies findings before producing a concise report.</p>
+        </div>
+      </section>
+
       {/* Pipeline Diagram */}
       <section className="py-16 px-4 max-w-6xl mx-auto">
         <h2 className="text-2xl font-bold mb-8 text-center uppercase tracking-wider text-secondary">
           Pipeline
         </h2>
         <div className="bg-panel border border-border rounded-lg p-8">
-          <svg viewBox="0 0 800 200" className="w-full h-auto">
-            {/* Orchestrator */}
-            <rect x="50" y="80" width="100" height="40" rx="4" fill="#161B22" stroke="#8B5CF6" strokeWidth="2" />
-            <text x="100" y="105" textAnchor="middle" fill="#E6EDF3" fontSize="12">Orchestrator</text>
+          <svg role="img" aria-label="Review pipeline: Orchestrator coordinates Bug, Security, Quality, Test Coverage and Semgrep; findings pass through Verifier and Summarizer" viewBox="0 0 900 340" className="w-full h-auto">
+            <defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#8B949E" /></marker></defs>
+            <rect x="20" y="142" width="130" height="56" rx="8" fill="#161B22" stroke="#8B5CF6" strokeWidth="2" />
+            <text x="85" y="176" textAnchor="middle" fill="#E6EDF3" fontSize="14">Orchestrator</text>
+            <path d="M150 170 H184 V48 H210 M184 170 V104 H210 M184 170 V160 H210 M184 170 V216 H210 M184 170 V272 H210" fill="none" stroke="#8B949E" strokeWidth="2" markerEnd="url(#arrowhead)" />
+            <g fill="#161B22" stroke="#21262D"><rect x="210" y="28" width="150" height="40" rx="8"/><rect x="210" y="84" width="150" height="40" rx="8"/><rect x="210" y="140" width="150" height="40" rx="8"/><rect x="210" y="196" width="150" height="40" rx="8"/><rect x="210" y="252" width="150" height="40" rx="8"/></g>
+            <g fill="#E6EDF3" fontSize="13" textAnchor="middle"><text x="285" y="53">Bug</text><text x="285" y="109">Security</text><text x="285" y="165">Quality</text><text x="285" y="221">Test Coverage</text><text x="285" y="277">Semgrep</text></g>
+            <path d="M360 48 H398 V170 H430 M360 104 H398 M360 160 H398 M360 216 H398 M360 272 H398 V170" fill="none" stroke="#8B949E" strokeWidth="2" markerEnd="url(#arrowhead)" />
+            <rect x="430" y="142" width="130" height="56" rx="8" fill="#161B22" stroke="#8B5CF6" strokeWidth="2"/><text x="495" y="176" textAnchor="middle" fill="#E6EDF3" fontSize="14">Verifier</text>
+            <line x1="560" y1="170" x2="650" y2="170" stroke="#8B949E" strokeWidth="2" markerEnd="url(#arrowhead)"/>
+            <rect x="650" y="142" width="160" height="56" rx="8" fill="#161B22" stroke="#8B5CF6" strokeWidth="2"/><text x="730" y="176" textAnchor="middle" fill="#E6EDF3" fontSize="14">Summarizer</text>
 
-            {/* Arrow */}
-            <line x1="150" y1="100" x2="200" y2="100" stroke="#8B949E" strokeWidth="2" markerEnd="url(#arrowhead)" />
-
-            {/* Specialists in parallel */}
-            <rect x="200" y="30" width="80" height="35" rx="4" fill="#161B22" stroke="#21262D" strokeWidth="1" />
-            <text x="240" y="52" textAnchor="middle" fill="#E6EDF3" fontSize="10">Bug</text>
-
-            <rect x="200" y="75" width="80" height="35" rx="4" fill="#161B22" stroke="#21262D" strokeWidth="1" />
-            <text x="240" y="97" textAnchor="middle" fill="#E6EDF3" fontSize="10">Security</text>
-
-            <rect x="200" y="120" width="80" height="35" rx="4" fill="#161B22" stroke="#21262D" strokeWidth="1" />
-            <text x="240" y="142" textAnchor="middle" fill="#E6EDF3" fontSize="10">Quality</text>
-
-            <rect x="200" y="165" width="80" height="35" rx="4" fill="#161B22" stroke="#21262D" strokeWidth="1" />
-            <text x="240" y="187" textAnchor="middle" fill="#E6EDF3" fontSize="10">Test</text>
-
-            {/* Semgrep in parallel */}
-            <rect x="200" y="15" width="80" height="15" rx="2" fill="#161B22" stroke="#58A6FF" strokeWidth="1" />
-            <text x="240" y="26" textAnchor="middle" fill="#58A6FF" fontSize="8">Semgrep</text>
-
-            {/* Arrow */}
-            <line x1="280" y1="100" x2="330" y2="100" stroke="#8B949E" strokeWidth="2" markerEnd="url(#arrowhead)" />
-
-            {/* Verifier */}
-            <rect x="330" y="80" width="80" height="40" rx="4" fill="#161B22" stroke="#8B5CF6" strokeWidth="2" />
-            <text x="370" y="105" textAnchor="middle" fill="#E6EDF3" fontSize="12">Verifier</text>
-
-            {/* Arrow */}
-            <line x1="410" y1="100" x2="460" y2="100" stroke="#8B949E" strokeWidth="2" markerEnd="url(#arrowhead)" />
-
-            {/* Summarizer */}
-            <rect x="460" y="80" width="100" height="40" rx="4" fill="#161B22" stroke="#8B5CF6" strokeWidth="2" />
-            <text x="510" y="105" textAnchor="middle" fill="#E6EDF3" fontSize="12">Summarizer</text>
-
-            {/* Arrow */}
-            <line x1="560" y1="100" x2="610" y2="100" stroke="#8B949E" strokeWidth="2" markerEnd="url(#arrowhead)" />
-
-            {/* Verdict */}
-            <rect x="610" y="80" width="80" height="40" rx="4" fill="#161B22" stroke="#3FB950" strokeWidth="2" />
-            <text x="650" y="105" textAnchor="middle" fill="#3FB950" fontSize="12">Verdict</text>
-
-            <defs>
-              <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                <polygon points="0 0, 10 3.5, 0 7" fill="#8B949E" />
-              </marker>
-            </defs>
           </svg>
         </div>
       </section>
@@ -135,8 +113,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Team */}
-      <section className="py-16 px-4 max-w-6xl mx-auto">
+      {landingConfig.team.length > 0 && <section className="py-16 px-4 max-w-6xl mx-auto">
         <h2 className="text-2xl font-bold mb-8 text-center uppercase tracking-wider text-secondary">
           Team
         </h2>
@@ -151,7 +128,7 @@ export default function Landing() {
             </div>
           ))}
         </div>
-      </section>
+      </section>}
 
       {/* Tech Stack */}
       <section className="py-16 px-4 max-w-6xl mx-auto">

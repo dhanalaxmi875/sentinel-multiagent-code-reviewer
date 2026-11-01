@@ -1,42 +1,46 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { Badge } from '../components/Badge';
 import { NavBar } from '../components/NavBar';
 import { Tabs } from '../components/Tabs';
 import { Clock, Trash2, AlertCircle, RefreshCw, Download, Copy, Search } from 'lucide-react';
-import type { Review, Finding } from '../api/types';
+import type { Finding, Review, Severity } from '../api/types';
+import { usePollingQuery } from '../hooks/usePolling';
+import { filterFindings } from '../utils/filterLogic';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 
 export default function ReviewResult() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('findings');
   const [searchTerm, setSearchTerm] = useState('');
   const [severityFilter, setSeverityFilter] = useState('');
 
-  const { data: review, isLoading, error } = useQuery({
-    queryKey: ['review', id],
-    queryFn: () => api.getReview(id!),
-    refetchInterval: (data) => {
-      if (!data) return false;
-      if (data.status === 'queued' || data.status === 'running') return 2000;
-      return false;
-    },
-  } as any);
+  const { data: review, isLoading, error } = usePollingQuery(['review', id], () => api.getReview(id!), result => result.status);
+  const retryReview = useMutation({
+    mutationFn: () => api.createReview({ diff_text: review?.diff_text ?? '' }),
+    onSuccess: result => navigate(`/app/reviews/${result.id}`),
+  });
+  const [feedback, setFeedback] = useState('');
 
   const deleteReview = async () => {
     if (confirm('Delete this review?')) {
-      await api.deleteReview(id!);
-      navigate('/app/history');
+      try {
+        await api.deleteReview(id!);
+        await queryClient.invalidateQueries({ queryKey: ['reviews'] });
+        navigate('/app/history');
+      } catch (deleteError) {
+        setFeedback(deleteError instanceof Error ? deleteError.message : 'Unable to delete review');
+      }
     }
   };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
+    void navigator.clipboard.writeText(text).then(() => setFeedback('Fix copied to clipboard')).catch(() => setFeedback('Could not copy to clipboard'));
   };
 
   const exportMarkdown = () => {
@@ -52,20 +56,14 @@ export default function ReviewResult() {
     URL.revokeObjectURL(url);
   };
 
-  if (isLoading) return <div className="p-8 text-secondary">Loading...</div>;
-  if (error) return <div className="p-8 text-critical">Error loading review</div>;
+  if (isLoading) return <div className="min-h-screen bg-page"><NavBar /><div className="p-8 space-y-4"><div className="h-8 w-64 animate-pulse rounded bg-panel"/><div className="h-40 animate-pulse rounded bg-panel"/></div></div>;
+  if (error) return <div className="min-h-screen bg-page"><NavBar /><div role="alert" className="p-8 text-critical">Error loading review: {error.message}</div></div>;
   if (!review) return <div className="p-8 text-secondary">Review not found</div>;
 
   const reviewData = review as Review;
   const isRunning = reviewData.status === 'queued' || reviewData.status === 'running';
 
-  const filteredFindings = reviewData.findings
-    .filter((f: Finding) => f.status === 'kept')
-    .filter((f: Finding) => {
-      if (severityFilter && f.severity !== severityFilter) return false;
-      if (searchTerm && !f.title.toLowerCase().includes(searchTerm.toLowerCase())) return false;
-      return true;
-    });
+  const filteredFindings = filterFindings(reviewData.findings, searchTerm, severityFilter as Severity | '');
 
   return (
     <div>
@@ -102,11 +100,12 @@ export default function ReviewResult() {
           <div className="flex items-center gap-2">
             {reviewData.status === 'failed' && (
               <button
-                onClick={() => navigate(0)}
+              onClick={() => retryReview.mutate()}
+              disabled={retryReview.isPending}
                 className="flex items-center gap-2 text-brand hover:text-brand/80 transition-colors"
               >
                 <RefreshCw size={20} />
-                Retry
+                {retryReview.isPending ? 'Retrying…' : 'Retry review'}
               </button>
             )}
             {reviewData.status === 'done' && (
@@ -127,6 +126,8 @@ export default function ReviewResult() {
           </div>
         </div>
 
+      {retryReview.isError && <p role="alert" className="mb-4 text-critical">{retryReview.error.message}</p>}
+      {feedback && <p role="status" className="mb-4 text-secondary">{feedback}</p>}
       {reviewData.status === 'failed' && (
         <div className="bg-critical/10 border border-critical/30 rounded-lg p-4 mb-6 text-critical">
           <div className="flex items-center gap-2 mb-2">
@@ -143,7 +144,7 @@ export default function ReviewResult() {
             Agent Pipeline
           </h2>
           <div className="space-y-2">
-            {reviewData.agents.map((agent: any) => (
+            {reviewData.agents.map((agent) => (
               <div key={agent.agent} className="flex items-center justify-between">
                 <span className="text-sm">{agent.agent}</span>
                 <div className="flex items-center gap-4">
@@ -163,6 +164,15 @@ export default function ReviewResult() {
                 </div>
               </div>
             ))}
+          </div>
+          <div className="mt-6 border-t border-border pt-4" aria-live="polite">
+            <h3 className="text-sm font-semibold mb-2">Activity log</h3>
+            <ul className="space-y-1 text-sm text-secondary">
+              <li>{new Date(reviewData.created_at).toLocaleTimeString()} · Review {reviewData.status}</li>
+              {reviewData.agents.filter(agent => agent.status !== 'idle').map(agent => (
+                <li key={`log-${agent.agent}`}>{agent.agent}: {agent.status}{agent.finding_count ? ` · ${agent.finding_count} findings` : ''}</li>
+              ))}
+            </ul>
           </div>
         </div>
       )}
@@ -216,8 +226,8 @@ export default function ReviewResult() {
                     <div key={finding.id} className="bg-panel border border-border rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <Badge variant={finding.severity.toLowerCase() as any}>{finding.severity}</Badge>
-                          <Badge variant="secondary" confidence={finding.confidence.toLowerCase() as any}>
+                          <Badge variant={finding.severity.toLowerCase() as 'critical' | 'high' | 'medium' | 'low'}>{finding.severity}</Badge>
+                          <Badge variant="secondary" confidence={finding.confidence.toLowerCase() as 'high' | 'medium' | 'low'}>
                             {finding.confidence}
                           </Badge>
                           <Badge variant="brand">{finding.cwe}</Badge>
